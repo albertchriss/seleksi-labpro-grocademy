@@ -5,10 +5,14 @@ import { AppService } from './app.service';
 import { CoursesModule } from './courses/courses.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createDatabaseConfig } from './database/database.config';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -18,6 +22,21 @@ import { createDatabaseConfig } from './database/database.config';
     }),
 
     CoursesModule,
+
+    UsersModule,
+
+    AuthModule,
+
+    PassportModule,
+
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '60s' },
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

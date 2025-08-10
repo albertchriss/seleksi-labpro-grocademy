@@ -1,4 +1,3 @@
-// src/database/database.config.ts
 import { ConfigService } from '@nestjs/config';
 import { DataSourceOptions } from 'typeorm';
 
