@@ -1,17 +1,20 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  BeforeInsert,
+  PrimaryColumn,
 } from 'typeorm';
-import { UserCourse } from './user-course.entity';
+import { Transaction } from './transaction.entity';
+import { nanoid } from 'nanoid';
+import { Module } from './module.entity';
 
 @Entity('courses')
 export class Course {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
   @Column()
   title: string;
@@ -22,14 +25,14 @@ export class Course {
   @Column()
   instructor: string;
 
-  @Column()
-  topics: string;
+  @Column('text', { array: true })
+  topics: string[];
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @Column()
-  thubmnail_image: string | null;
+  @Column({ nullable: true })
+  thumbnail_image: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -37,6 +40,15 @@ export class Course {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => UserCourse, (userCourse) => userCourse.course)
-  enrollments: UserCourse[];
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
+  enrollments: Transaction[];
+
+  @OneToMany(() => Module, (module) => module.course)
+  modules: Module[];
+
+  @BeforeInsert()
+  generateId() {
+    // Generate 8-character ID with alphanumeric chars
+    this.id = nanoid(8);
+  }
 }

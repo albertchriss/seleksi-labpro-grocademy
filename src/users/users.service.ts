@@ -53,6 +53,11 @@ export class UsersService {
     });
   }
 
+  async editUser(id: string, userData: Partial<User>): Promise<User | null> {
+    await this.userRepository.update(id, userData);
+    return this.userRepository.findOne({ where: { id } });
+  }
+
   async create(
     userData: Partial<User>,
     accountData: Partial<Account>,

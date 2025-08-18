@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       inject: [ConfigService],
     }),
+
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

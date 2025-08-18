@@ -9,7 +9,7 @@ import {
   Unique,
 } from 'typeorm';
 import { Account } from './account.entity';
-import { UserCourse } from './user-course.entity';
+import { Transaction } from './transaction.entity';
 
 @Entity('user')
 export class User {
@@ -47,6 +47,6 @@ export class User {
   @OneToOne(() => Account, (account) => account.user)
   account: Account;
 
-  @OneToMany(() => UserCourse, (userCourse) => userCourse.user)
-  enrollments: UserCourse[];
+  @OneToMany(() => Transaction, (transaction) => transaction.user)
+  enrollments: Transaction[];
 }
