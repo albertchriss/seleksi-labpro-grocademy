@@ -1,5 +1,6 @@
 import { Controller, Get, Render } from '@nestjs/common';
 import { AppService } from './app.service';
+import { SkipResponseInterceptor } from './auth/decorators/skip-response-interceptor.decorator';
 
 @Controller()
 export class AppController {
@@ -12,7 +13,8 @@ export class AppController {
 
   @Get()
   @Render('index')
+  @SkipResponseInterceptor()
   root() {
-    return { message: 'Welcome to Grocademy!' };
+    return { msg: 'Welcome to Grocademy!' };
   }
 }
