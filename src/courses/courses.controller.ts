@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   UseInterceptors,
   UploadedFile,
@@ -26,6 +27,10 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { ModuleResponseDto } from './dto/module-response.dto';
 import { GetModulesResponseDto } from './dto/get-modules.dto';
+import {
+  ReorderModulesDto,
+  ReorderModulesResponseDto,
+} from './dto/reorder-modules.dto';
 import { GetCoursesResponseDto } from './dto/get-courses.dto';
 import { BuyCourseResponseDto } from './dto/buy-course.dto';
 import { CourseDetailResponseDto } from './dto/course-detail.dto';
@@ -235,16 +240,24 @@ export class CoursesController {
       video_content?: Express.Multer.File[];
     },
   ): Promise<ModuleResponseDto> {
-    // const pdfFile = files.pdf_content?.[0];
-    // const videoFile = files.video_content?.[0];
-    // const pdfFile = null;
-    // const videoFile = null;
+    const pdfFile = files?.pdf_content?.[0];
+    const videoFile = files?.video_content?.[0];
 
     return this.coursesService.createModule(
       courseId,
       createModuleDto,
-      // pdfFile,
-      // videoFile,
+      pdfFile?.filename,
+      videoFile?.filename,
     );
+  }
+
+  @Auth()
+  @Patch(':courseId/modules/reorder')
+  @ApiOperation({ summary: 'Reorder modules in a course' })
+  async reorderModules(
+    @Param('courseId') courseId: string,
+    @Body() reorderModulesDto: ReorderModulesDto,
+  ): Promise<ReorderModulesResponseDto> {
+    return this.coursesService.reorderModules(courseId, reorderModulesDto);
   }
 }

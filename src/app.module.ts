@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TransactionModule } from './transaction/transaction.module';
+import { ModulesModule } from './modules/modules.module';
 
 @Module({
   imports: [
@@ -40,6 +41,8 @@ import { TransactionModule } from './transaction/transaction.module';
     }),
 
     TransactionModule,
+
+    ModulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

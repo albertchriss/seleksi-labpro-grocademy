@@ -11,6 +11,10 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { ModuleResponseDto } from './dto/module-response.dto';
 import { GetModulesResponseDto } from './dto/get-modules.dto';
+import {
+  ReorderModulesDto,
+  ReorderModulesResponseDto,
+} from './dto/reorder-modules.dto';
 import { GetCoursesResponseDto } from './dto/get-courses.dto';
 import { BuyCourseResponseDto } from './dto/buy-course.dto';
 import { CourseDetailResponseDto } from './dto/course-detail.dto';
@@ -258,6 +262,70 @@ export class CoursesService {
     return {
       data: moduleData,
       pagination,
+    };
+  }
+
+  async reorderModules(
+    courseId: string,
+    reorderModulesDto: ReorderModulesDto,
+  ): Promise<ReorderModulesResponseDto> {
+    // Check if course exists
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    // Validate order values are unique and form a permutation of 1 to N
+    const orderValues = reorderModulesDto.module_order.map(
+      (item) => item.order,
+    );
+    const moduleIds = reorderModulesDto.module_order.map((item) => item.id);
+    const n = reorderModulesDto.module_order.length;
+
+    // Check for unique order values
+    const uniqueOrderValues = new Set(orderValues);
+    if (uniqueOrderValues.size !== n) {
+      throw new BadRequestException('Order values must be unique');
+    }
+
+    // Check for unique module IDs
+    const uniqueModuleIds = new Set(moduleIds);
+    if (uniqueModuleIds.size !== n) {
+      throw new BadRequestException('Module IDs must be unique');
+    }
+
+    // Check if order values form a valid permutation of 1 to N
+    const sortedOrderValues = [...orderValues].sort((a, b) => a - b);
+    const expectedValues = Array.from({ length: n }, (_, i) => i + 1);
+
+    if (JSON.stringify(sortedOrderValues) !== JSON.stringify(expectedValues)) {
+      throw new BadRequestException(
+        `Order values must be a permutation of 1 to ${n}`,
+      );
+    }
+
+    // Update each module's order
+    const updatePromises = reorderModulesDto.module_order.map(async (item) => {
+      const module = await this.moduleRepository.findOne({
+        where: { id: item.id, course: { id: courseId } },
+      });
+
+      if (!module) {
+        throw new NotFoundException(
+          `Module with id ${item.id} not found in this course`,
+        );
+      }
+
+      return this.moduleRepository.update(item.id, { order: item.order });
+    });
+
+    await Promise.all(updatePromises);
+
+    return {
+      module_order: reorderModulesDto.module_order,
     };
   }
 }
