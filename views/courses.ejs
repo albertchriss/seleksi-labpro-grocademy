@@ -181,6 +181,12 @@
           clone.querySelector('.course-anchor').href = `/courses/${course.id}`;
           clone.querySelector('.course-button').classList.add('hidden');
 
+          if (course.thumbnail_image){
+            clone.querySelector('.course-image').src = course.thumbnail_image;
+            clone.querySelector('.course-image').classList.remove('hidden');
+            clone.querySelector('.image-placeholder').classList.add('hidden');
+          }
+
           container.appendChild(clone);
         });
       }

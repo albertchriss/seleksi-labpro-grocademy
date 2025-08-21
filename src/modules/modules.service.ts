@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Module } from '../entities/module.entity';
@@ -7,6 +11,8 @@ import { Transaction } from '../entities/transaction.entity';
 import { ModuleDetailResponseDto } from './dto/module-detail.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { CompleteModuleResponseDto } from './dto/complete-module.dto';
+import { Media } from 'src/entities/media.entity';
+import { MediaService } from 'src/media/media.service';
 
 @Injectable()
 export class ModulesService {
@@ -17,6 +23,7 @@ export class ModulesService {
     private userProgressRepository: Repository<UserProgress>,
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
+    private mediaService: MediaService,
   ) {}
 
   async findOne(
@@ -59,8 +66,10 @@ export class ModulesService {
     id: string,
     updateModuleDto: UpdateModuleDto,
     userId: string,
-    pdfPath?: string | null,
-    videoPath?: string | null,
+    files: {
+      pdf_content?: Express.Multer.File;
+      video_content?: Express.Multer.File;
+    },
   ): Promise<ModuleDetailResponseDto> {
     const module = await this.moduleRepository.findOne({
       where: { id },
@@ -71,12 +80,51 @@ export class ModulesService {
       throw new NotFoundException('Module not found');
     }
 
+    const { pdf_content, video_content } = files;
+
+    if (pdf_content && !pdf_content.mimetype?.startsWith('application/pdf')) {
+      throw new BadRequestException('Invalid PDF file');
+    }
+
+    if (video_content && !video_content.mimetype?.startsWith('video/')) {
+      throw new BadRequestException('Invalid video file');
+    }
+
+    if (video_content && video_content.size > 50 * 1024 * 1024) {
+      throw new BadRequestException('Video file is too large');
+    }
+
+    if (pdf_content && pdf_content.size > 10 * 1024 * 1024) {
+      throw new BadRequestException('PDF file is too large');
+    }
+
+    let videoMedia: Media | null = null;
+    let pdfMedia: Media | null = null;
+
+    if (video_content) {
+      videoMedia = await this.mediaService.uploadMedia(video_content);
+      if (!videoMedia) {
+        throw new BadRequestException('Failed to upload video');
+      }
+    }
+
+    if (pdf_content) {
+      pdfMedia = await this.mediaService.uploadMedia(pdf_content);
+      if (!pdfMedia) {
+        throw new BadRequestException('Failed to upload PDF');
+      }
+    }
+
     // Update the module
     await this.moduleRepository.update(id, {
       title: updateModuleDto.title,
       description: updateModuleDto.description,
-      pdf_content: pdfPath !== undefined ? pdfPath : module.pdf_content,
-      video_content: videoPath !== undefined ? videoPath : module.video_content,
+      pdf_content: pdfMedia
+        ? this.mediaService.transformToUrl(pdfMedia.id)
+        : null,
+      video_content: videoMedia
+        ? this.mediaService.transformToUrl(videoMedia.id)
+        : null,
     });
 
     // Fetch the updated module with all relations

@@ -11,7 +11,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TransactionModule } from './transaction/transaction.module';
 import { ModulesModule } from './modules/modules.module';
-import { MinioService } from './minio/minio.service';
+import { MinioModule } from './minio/minio.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -44,8 +45,12 @@ import { MinioService } from './minio/minio.service';
     TransactionModule,
 
     ModulesModule,
+
+    MinioModule,
+
+    MediaModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MinioService],
+  providers: [AppService],
 })
 export class AppModule {}

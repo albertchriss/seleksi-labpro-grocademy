@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AdminAuth } from 'src/auth/decorators/auth.decorator';
 import { GetUsersResponseDto } from './dto/get-users.dto';
 import {
   UpdateBalanceDto,
@@ -28,7 +28,7 @@ import { UpdateUserDto, UpdateUserResponseDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Auth()
+  @AdminAuth()
   @Get()
   @ApiOperation({ summary: 'Get all users with search and pagination' })
   @ApiQuery({
@@ -61,7 +61,7 @@ export class UsersController {
     return this.usersService.findUsersWithPagination(q, page, limit);
   }
 
-  @Auth()
+  @AdminAuth()
   @Post(':id/balance')
   @ApiOperation({ summary: 'Update user balance' })
   @ApiBody({
@@ -75,14 +75,14 @@ export class UsersController {
     return this.usersService.updateUserBalance(id, updateBalanceDto);
   }
 
-  @Auth()
+  @AdminAuth()
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   async findOne(@Param('id') id: string): Promise<GetUserResponseDto | null> {
     return this.usersService.findUserById(id);
   }
 
-  @Auth()
+  @AdminAuth()
   @Put(':id')
   @ApiOperation({ summary: 'Update user (admin cannot be updated)' })
   @ApiBody({
@@ -100,7 +100,7 @@ export class UsersController {
     return result;
   }
 
-  @Auth()
+  @AdminAuth()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user (admin cannot be deleted)' })

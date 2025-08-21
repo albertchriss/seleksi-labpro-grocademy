@@ -355,10 +355,10 @@
         // Show appropriate content type
         hideAllContent();
         
-        if (module.pdf_url) {
-          showPdfContent(module.pdf_url);
-        } else if (module.video_url) {
-          showVideoContent(module.video_url);
+        if (module.pdf_content) {
+          showPdfContent(module.pdf_content);
+        } else if (module.video_content) {
+          showVideoContent(module.video_content);
         } else {
           showTextContent(module.content || 'Konten modul tidak tersedia.');
         }

@@ -8,14 +8,14 @@ import {
   Body,
   Request,
   UseInterceptors,
-  UploadedFiles,
   HttpCode,
   HttpStatus,
+  UploadedFiles,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ModulesService } from './modules.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AdminAuth, Auth } from 'src/auth/decorators/auth.decorator';
 import { ModuleDetailResponseDto } from './dto/module-detail.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { CompleteModuleResponseDto } from './dto/complete-module.dto';
@@ -36,7 +36,7 @@ export class ModulesController {
     return this.modulesService.findOne(id, req.user.id);
   }
 
-  @Auth()
+  @AdminAuth()
   @Put(':id')
   @ApiOperation({ summary: 'Update module by ID' })
   @ApiConsumes('multipart/form-data')
@@ -99,23 +99,20 @@ export class ModulesController {
     @Request() req: AuthenticatedRequest,
     @UploadedFiles()
     files: {
-      pdf_content?: Express.Multer.File[];
-      video_content?: Express.Multer.File[];
+      pdf_content?: Express.Multer.File[]; // Correct type is an array
+      video_content?: Express.Multer.File[]; // Correct type is an array
     },
   ): Promise<ModuleDetailResponseDto> {
-    const pdfFile = files?.pdf_content?.[0];
-    const videoFile = files?.video_content?.[0];
-
-    return this.modulesService.update(
-      id,
-      updateModuleDto,
-      req.user.id,
-      pdfFile?.filename,
-      videoFile?.filename,
-    );
+    // Access the single file from the array
+    const pdfFile = files.pdf_content?.[0];
+    const videoFile = files.video_content?.[0];
+    return this.modulesService.update(id, updateModuleDto, req.user.id, {
+      pdf_content: pdfFile,
+      video_content: videoFile,
+    });
   }
 
-  @Auth()
+  @AdminAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Delete module by ID' })
   @HttpCode(HttpStatus.NO_CONTENT)

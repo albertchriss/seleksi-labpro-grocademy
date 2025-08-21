@@ -22,6 +22,8 @@ import { UsersService } from 'src/users/users.service';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { GetMyCoursesResponseDto } from './dto/get-my-courses.dto';
 import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
+import { MediaService } from 'src/media/media.service';
+import { Media } from 'src/entities/media.entity';
 
 @Injectable()
 export class CoursesService {
@@ -32,6 +34,7 @@ export class CoursesService {
     private moduleRepository: Repository<Module>,
     private userService: UsersService,
     private transactionService: TransactionService,
+    private mediaService: MediaService,
   ) {}
 
   findAll(): Promise<Course[]> {
@@ -74,11 +77,28 @@ export class CoursesService {
 
   async create(
     createCourseDto: CreateCourseDto,
-    thumbnailPath?: string,
+    thumbnail_image: Express.Multer.File,
   ): Promise<Course> {
+    if (thumbnail_image && !thumbnail_image.mimetype.startsWith('image/')) {
+      throw new BadRequestException('Invalid image file');
+    }
+
+    if (thumbnail_image && thumbnail_image.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('Image file is too large');
+    }
+
+    let media: Media | null = null;
+
+    if (thumbnail_image) {
+      media = await this.mediaService.uploadMedia(thumbnail_image);
+      if (!media) {
+        throw new BadRequestException('Failed to upload image');
+      }
+    }
+
     const course = this.courseRepository.create({
       ...createCourseDto,
-      thumbnail_image: thumbnailPath || null,
+      thumbnail_image: media?.id ?? null,
     });
 
     return await this.courseRepository.save(course);
@@ -111,13 +131,37 @@ export class CoursesService {
   async editCourse(
     id: string,
     createCourseDto: CreateCourseDto,
+    thumbnail_image: Express.Multer.File,
   ): Promise<EditCourseResponseDetailDto> {
     const course = await this.courseRepository.findOne({ where: { id } });
     if (!course) {
       throw new NotFoundException('Course not found');
     }
 
-    Object.assign(course, createCourseDto);
+    const exist = thumbnail_image !== undefined;
+
+    if (exist && !thumbnail_image.mimetype.startsWith('image/')) {
+      throw new BadRequestException('Invalid image file');
+    }
+
+    if (exist && thumbnail_image.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('Image file is too large');
+    }
+
+    let media: Media | null = null;
+    if (exist) {
+      media = await this.mediaService.uploadMedia(thumbnail_image);
+      if (!media) {
+        throw new BadRequestException('Failed to upload image');
+      }
+    }
+
+    Object.assign(course, {
+      ...createCourseDto,
+      thumbnail_image: media
+        ? this.mediaService.transformToUrl(media.id)
+        : null,
+    });
     await this.courseRepository.save(course);
 
     return {
@@ -219,10 +263,11 @@ export class CoursesService {
   async createModule(
     courseId: string,
     createModuleDto: CreateModuleDto,
-    pdfPath?: string | null,
-    videoPath?: string | null,
+    files: {
+      pdf_content?: Express.Multer.File;
+      video_content?: Express.Multer.File;
+    },
   ): Promise<ModuleResponseDto> {
-    // Check if course exists
     const course = await this.courseRepository.findOne({
       where: { id: courseId },
       relations: ['modules'],
@@ -230,6 +275,41 @@ export class CoursesService {
 
     if (!course) {
       throw new NotFoundException('Course not found');
+    }
+
+    const { pdf_content, video_content } = files;
+
+    if (pdf_content && !pdf_content.mimetype.startsWith('application/pdf')) {
+      throw new BadRequestException('Invalid PDF file');
+    }
+
+    if (video_content && !video_content.mimetype.startsWith('video/')) {
+      throw new BadRequestException('Invalid video file');
+    }
+
+    if (video_content && video_content.size > 50 * 1024 * 1024) {
+      throw new BadRequestException('Video file is too large');
+    }
+
+    if (pdf_content && pdf_content.size > 10 * 1024 * 1024) {
+      throw new BadRequestException('PDF file is too large');
+    }
+
+    let videoMedia: Media | null = null;
+    let pdfMedia: Media | null = null;
+
+    if (video_content) {
+      videoMedia = await this.mediaService.uploadMedia(video_content);
+      if (!videoMedia) {
+        throw new BadRequestException('Failed to upload video');
+      }
+    }
+
+    if (pdf_content) {
+      pdfMedia = await this.mediaService.uploadMedia(pdf_content);
+      if (!pdfMedia) {
+        throw new BadRequestException('Failed to upload PDF');
+      }
     }
 
     // Calculate the next order number
@@ -240,8 +320,12 @@ export class CoursesService {
       title: createModuleDto.title,
       description: createModuleDto.description,
       order: nextOrder,
-      pdf_content: pdfPath ?? null,
-      video_content: videoPath ?? null,
+      pdf_content: pdfMedia
+        ? this.mediaService.transformToUrl(pdfMedia.id)
+        : null,
+      video_content: videoMedia
+        ? this.mediaService.transformToUrl(videoMedia.id)
+        : null,
       course: course,
     });
 

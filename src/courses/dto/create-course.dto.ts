@@ -40,8 +40,7 @@ export class CreateCourseDto {
   @IsNumberString()
   price: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   @IsOptional()
-  @IsString()
-  thumbnail_image?: string;
+  thumbnail_image?: Express.Multer.File;
 }

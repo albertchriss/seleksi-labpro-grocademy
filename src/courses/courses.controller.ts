@@ -5,13 +5,13 @@ import {
   Patch,
   Body,
   UseInterceptors,
-  UploadedFile,
-  UploadedFiles,
   Query,
   Param,
   Delete,
   Request,
   Put,
+  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -23,7 +23,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AdminAuth, Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { ModuleResponseDto } from './dto/module-response.dto';
@@ -93,7 +93,7 @@ export class CoursesController {
     return this.coursesService.findOne(id);
   }
 
-  @Auth()
+  @AdminAuth()
   @Put(':id')
   @ApiOperation({ summary: 'Update course by ID' })
   @ApiConsumes('multipart/form-data')
@@ -121,11 +121,12 @@ export class CoursesController {
   update(
     @Param('id') id: string,
     @Body() body: CreateCourseDto,
+    @UploadedFile() thumbnailImageFile: Express.Multer.File,
   ): Promise<EditCourseResponseDetailDto> {
-    return this.coursesService.editCourse(id, body);
+    return this.coursesService.editCourse(id, body, thumbnailImageFile);
   }
 
-  @Auth()
+  @AdminAuth()
   @Post()
   @ApiOperation({ summary: 'Create new course' })
   @ApiConsumes('multipart/form-data')
@@ -150,24 +151,26 @@ export class CoursesController {
     },
   })
   @UseInterceptors(FileInterceptor('thumbnail_image'))
-  createCourse(
+  async createCourse(
     @Body() body: CreateCourseDto,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @UploadedFile() _file?: Express.Multer.File,
-  ) {
-    const { title, description, instructor, topics, price } = body;
-    const courseData = {
-      title,
-      description,
-      instructor,
-      topics: topics,
-      price: Number(price),
-      // thumbnail_image: file?.filename || null,
+    @UploadedFile() thumbnailImageFile: Express.Multer.File,
+  ): Promise<EditCourseResponseDetailDto> {
+    const createdCourse = await this.coursesService.create(
+      body,
+      thumbnailImageFile,
+    );
+
+    return {
+      id: createdCourse.id,
+      title: createdCourse.title,
+      description: createdCourse.description,
+      instructor: createdCourse.instructor,
+      topics: createdCourse.topics,
+      price: createdCourse.price,
+      thumbnail_image: createdCourse.thumbnail_image,
+      created_at: createdCourse.created_at.toISOString(),
+      updated_at: createdCourse.updated_at.toISOString(),
     };
-
-    const createdCourse = this.coursesService.create(courseData);
-
-    return createdCourse;
   }
 
   @Auth()
@@ -180,7 +183,7 @@ export class CoursesController {
     return this.coursesService.buyCourse(id, req.user.id);
   }
 
-  @Auth()
+  @AdminAuth()
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a course' })
   async deleteCourse(@Param('id') id: string): Promise<void> {
@@ -220,7 +223,7 @@ export class CoursesController {
     );
   }
 
-  @Auth()
+  @AdminAuth()
   @Post(':courseId/modules')
   @ApiOperation({ summary: 'Create a new module for a course' })
   @ApiConsumes('multipart/form-data')
@@ -286,18 +289,15 @@ export class CoursesController {
       video_content?: Express.Multer.File[];
     },
   ): Promise<ModuleResponseDto> {
-    const pdfFile = files?.pdf_content?.[0];
-    const videoFile = files?.video_content?.[0];
-
-    return this.coursesService.createModule(
-      courseId,
-      createModuleDto,
-      pdfFile?.filename,
-      videoFile?.filename,
-    );
+    const pdfFile = files.pdf_content?.[0];
+    const videoFile = files.video_content?.[0];
+    return this.coursesService.createModule(courseId, createModuleDto, {
+      pdf_content: pdfFile,
+      video_content: videoFile,
+    });
   }
 
-  @Auth()
+  @AdminAuth()
   @Patch(':courseId/modules/reorder')
   @ApiOperation({ summary: 'Reorder modules in a course' })
   async reorderModules(
