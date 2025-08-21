@@ -43,7 +43,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user profile' })
   getSelf(@Request() req: AuthenticatedRequest): SelfDto {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { createdAt, updatedAt, profile_pic, ...userWithoutTimestamps } =
+    const { created_at, updated_at, profile_pic, ...userWithoutTimestamps } =
       req.user;
     return userWithoutTimestamps as SelfDto;
   }

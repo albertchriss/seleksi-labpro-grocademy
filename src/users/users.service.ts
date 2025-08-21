@@ -122,7 +122,7 @@ export class UsersService {
       where: searchConditions.length > 0 ? searchConditions : {},
       skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { created_at: 'DESC' },
     });
 
     // Map to response format

@@ -33,10 +33,10 @@ export class Module {
   video_content: string | null;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @ManyToOne(() => Course, (course) => course.modules, { onDelete: 'CASCADE' })
   course: Course;

@@ -39,10 +39,10 @@ export class User {
   profile_pic: string | null;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToOne(() => Account, (account) => account.user)
   account: Account;

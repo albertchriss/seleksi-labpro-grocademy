@@ -10,6 +10,7 @@ import { HttpExceptionFilter } from './auth/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -21,6 +22,13 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3000', // allow local frontend
+      'https://labpro-ohl-2025-fe.hmif.dev', // allow production frontend
+    ],
+    credentials: true, // if you need cookies/auth headers
+  });
   // Apply response interceptor globally
   app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
 

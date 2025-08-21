@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumberString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsString,
+  IsOptional,
+  IsNumberString,
+  IsArray,
+  ArrayNotEmpty,
+} from 'class-validator';
 
 export class CreateCourseDto {
   @ApiProperty()
@@ -14,8 +21,20 @@ export class CreateCourseDto {
   @IsString()
   instructor: string;
 
-  @IsString()
-  topics: string;
+  @ApiProperty({
+    type: [String],
+    description: 'List of topics',
+    example: ['nestjs', 'backend', 'typescript'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @Type(() => String)
+  @Transform(({ value }) =>
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    typeof value === 'string' ? value.split(',').map((v) => v.trim()) : value,
+  )
+  topics: string[];
 
   @ApiProperty()
   @IsNumberString()

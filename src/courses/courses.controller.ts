@@ -11,6 +11,7 @@ import {
   Param,
   Delete,
   Request,
+  Put,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
@@ -36,6 +37,7 @@ import { BuyCourseResponseDto } from './dto/buy-course.dto';
 import { CourseDetailResponseDto } from './dto/course-detail.dto';
 import { AuthenticatedRequest } from 'src/auth/interfaces/auth.interface';
 import { GetMyCoursesResponseDto } from './dto/get-my-courses.dto';
+import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
 
 @ApiTags('courses')
 @Controller('api/courses')
@@ -66,10 +68,22 @@ export class CoursesController {
   @Auth()
   @Get('my-courses')
   @ApiOperation({ summary: 'Get my courses' })
+  @ApiQuery({ name: 'q', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   getMyCourses(
+    @Query('q') q: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
     @Request() req: AuthenticatedRequest,
   ): Promise<GetMyCoursesResponseDto> {
-    return this.coursesService.getMyCourses(req.user.id);
+    if (!page) page = 1;
+    if (page < 1) page = 1;
+    if (!limit) limit = 15;
+    if (limit > 50) limit = 50;
+    if (limit < 1) limit = 1;
+    if (!q) q = '';
+    return this.coursesService.getMyCourses(req.user.id, q, page, limit);
   }
 
   @Auth()
@@ -77,6 +91,38 @@ export class CoursesController {
   @ApiOperation({ summary: 'Get course by ID' })
   findOne(@Param('id') id: string): Promise<CourseDetailResponseDto> {
     return this.coursesService.findOne(id);
+  }
+
+  @Auth()
+  @Put(':id')
+  @ApiOperation({ summary: 'Update course by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        instructor: { type: 'string' },
+        topics: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        price: { type: 'number' },
+        thumbnail_image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['title', 'description', 'instructor', 'topics', 'price'],
+    },
+  })
+  @UseInterceptors(FileInterceptor('thumbnail_image'))
+  update(
+    @Param('id') id: string,
+    @Body() body: CreateCourseDto,
+  ): Promise<EditCourseResponseDetailDto> {
+    return this.coursesService.editCourse(id, body);
   }
 
   @Auth()

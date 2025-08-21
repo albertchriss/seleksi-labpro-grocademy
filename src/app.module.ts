@@ -11,6 +11,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TransactionModule } from './transaction/transaction.module';
 import { ModulesModule } from './modules/modules.module';
+import { MinioService } from './minio/minio.service';
 
 @Module({
   imports: [
@@ -45,6 +46,6 @@ import { ModulesModule } from './modules/modules.module';
     ModulesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MinioService],
 })
 export class AppModule {}

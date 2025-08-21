@@ -21,6 +21,7 @@ import { CourseDetailResponseDto } from './dto/course-detail.dto';
 import { UsersService } from 'src/users/users.service';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { GetMyCoursesResponseDto } from './dto/get-my-courses.dto';
+import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
 
 @Injectable()
 export class CoursesService {
@@ -43,16 +44,26 @@ export class CoursesService {
     limit: number,
   ): Promise<GetCoursesResponseDto> {
     const skip = (page - 1) * limit;
-    const allCourses = await this.courseRepository.find({
-      where: { title: Like(`%${query}%`) },
+    const courses = await this.courseRepository.find({
+      where: [
+        { title: Like(`%${query}%`) },
+        { instructor: Like(`%${query}%`) },
+      ],
+      skip: skip,
+      take: limit,
     });
 
-    const courses = allCourses.slice(skip, skip + limit);
+    const numCourses = await this.courseRepository.count({
+      where: [
+        { title: Like(`%${query}%`) },
+        { instructor: Like(`%${query}%`) },
+      ],
+    });
 
     const pagination = {
       current_page: page,
-      total_pages: Math.ceil(allCourses.length / limit),
-      total_items: allCourses.length,
+      total_pages: Math.ceil(numCourses / limit),
+      total_items: numCourses,
     };
 
     return {
@@ -65,11 +76,8 @@ export class CoursesService {
     createCourseDto: CreateCourseDto,
     thumbnailPath?: string,
   ): Promise<Course> {
-    const { topics } = createCourseDto;
-    const topicArray = topics.split(',').map((topic) => topic.trim());
     const course = this.courseRepository.create({
       ...createCourseDto,
-      topics: topicArray,
       thumbnail_image: thumbnailPath || null,
     });
 
@@ -82,6 +90,10 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
+    const modules = await this.moduleRepository.count({
+      where: { course: { id: course.id } },
+    });
+
     return {
       id: course.id,
       title: course.title,
@@ -90,9 +102,34 @@ export class CoursesService {
       topics: course.topics,
       price: course.price,
       thumbnail_image: course.thumbnail_image,
-      total_modules: 0,
-      created_at: course.createdAt.toISOString(),
-      updated_at: course.updatedAt.toISOString(),
+      total_modules: modules,
+      created_at: course.created_at.toISOString(),
+      updated_at: course.updated_at.toISOString(),
+    };
+  }
+
+  async editCourse(
+    id: string,
+    createCourseDto: CreateCourseDto,
+  ): Promise<EditCourseResponseDetailDto> {
+    const course = await this.courseRepository.findOne({ where: { id } });
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    Object.assign(course, createCourseDto);
+    await this.courseRepository.save(course);
+
+    return {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      instructor: course.instructor,
+      topics: course.topics,
+      price: course.price,
+      thumbnail_image: course.thumbnail_image,
+      created_at: course.created_at.toISOString(),
+      updated_at: course.updated_at.toISOString(),
     };
   }
 
@@ -107,7 +144,7 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
-    const user = await this.userService.findUserById(userId);
+    const user = await this.userService.findUserByIdSimple(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -116,6 +153,12 @@ export class CoursesService {
     // Proceed with the purchase logic
     if (user.balance < course.price) {
       throw new BadRequestException('Insufficient balance to buy this course');
+    }
+
+    const prevTransaction =
+      await this.transactionService.findByUserIdAndCourseId(user.id, courseId);
+    if (prevTransaction) {
+      throw new BadRequestException('User has already purchased this course');
     }
 
     user.balance -= course.price;
@@ -137,8 +180,18 @@ export class CoursesService {
     await this.courseRepository.delete(id);
   }
 
-  async getMyCourses(userId: string): Promise<GetMyCoursesResponseDto> {
-    const transactions = await this.transactionService.findByUserId(userId);
+  async getMyCourses(
+    userId: string,
+    q: string,
+    page: number,
+    limit: number,
+  ): Promise<GetMyCoursesResponseDto> {
+    const { transactions, total } = await this.transactionService.findPaginated(
+      userId,
+      q,
+      page,
+      limit,
+    );
 
     const myCourses = transactions.map((trs) => ({
       id: trs.course.id,
@@ -150,15 +203,15 @@ export class CoursesService {
       progress_percentage: trs.course.modules.length
         ? (trs.userProgress.length / trs.course.modules.length) * 100
         : 0,
-      purchased_at: trs.createdAt,
+      purchased_at: trs.created_at,
     }));
 
     return {
       data: myCourses,
       pagination: {
-        current_page: 1,
-        total_pages: 1,
-        total_items: myCourses.length,
+        current_page: page,
+        total_pages: Math.ceil(total / limit),
+        total_items: total,
       },
     };
   }
@@ -202,8 +255,8 @@ export class CoursesService {
       order: savedModule.order,
       pdf_content: savedModule.pdf_content,
       video_content: savedModule.video_content,
-      created_at: savedModule.createdAt.toISOString(),
-      updated_at: savedModule.updatedAt.toISOString(),
+      created_at: savedModule.created_at.toISOString(),
+      updated_at: savedModule.updated_at.toISOString(),
     };
   }
 
@@ -221,9 +274,9 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('Course not found');
     }
+    const skip = (page - 1) * limit;
 
-    // Get all modules for the course
-    const allModules = await this.moduleRepository.find({
+    const modules = await this.moduleRepository.find({
       where: { course: { id: courseId } },
       order: { order: 'ASC' },
       relations: [
@@ -231,11 +284,13 @@ export class CoursesService {
         'userProgress.transaction',
         'userProgress.transaction.user',
       ],
+      skip: skip,
+      take: limit,
     });
 
-    // Calculate pagination
-    const skip = (page - 1) * limit;
-    const modules = allModules.slice(skip, skip + limit);
+    const total = await this.moduleRepository.count({
+      where: { course: { id: courseId } },
+    });
 
     // Map modules to response format
     const moduleData = modules.map((module) => ({
@@ -249,14 +304,14 @@ export class CoursesService {
       is_completed: module.userProgress.some(
         (progress) => progress.transaction.user.id === userId,
       ),
-      created_at: module.createdAt.toISOString(),
-      updated_at: module.updatedAt.toISOString(),
+      created_at: module.created_at.toISOString(),
+      updated_at: module.updated_at.toISOString(),
     }));
 
     const pagination = {
       current_page: page,
-      total_pages: Math.ceil(allModules.length / limit),
-      total_items: allModules.length,
+      total_pages: Math.ceil(total / limit),
+      total_items: total,
     };
 
     return {

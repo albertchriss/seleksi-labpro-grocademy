@@ -50,8 +50,8 @@ export class ModulesService {
       pdf_content: module.pdf_content,
       video_content: module.video_content,
       is_completed: isCompleted,
-      created_at: module.createdAt.toISOString(),
-      updated_at: module.updatedAt.toISOString(),
+      created_at: module.created_at.toISOString(),
+      updated_at: module.updated_at.toISOString(),
     };
   }
 
@@ -103,8 +103,8 @@ export class ModulesService {
       pdf_content: updatedModule.pdf_content,
       video_content: updatedModule.video_content,
       is_completed: isCompleted,
-      created_at: updatedModule.createdAt.toISOString(),
-      updated_at: updatedModule.updatedAt.toISOString(),
+      created_at: updatedModule.created_at.toISOString(),
+      updated_at: updatedModule.updated_at.toISOString(),
     };
   }
 

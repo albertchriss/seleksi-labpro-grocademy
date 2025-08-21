@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -13,6 +14,7 @@ import { nanoid } from 'nanoid';
 import { UserProgress } from './user-progress.entity';
 
 @Entity('transaction')
+@Unique(['user', 'course'])
 export class Transaction {
   @PrimaryColumn()
   id: string;
@@ -26,10 +28,10 @@ export class Transaction {
   course: Course;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @OneToMany(() => UserProgress, (userProgress) => userProgress.transaction, {
     onDelete: 'CASCADE',
