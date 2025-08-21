@@ -51,6 +51,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.16.3",
+    "puppeteer": "^24.17.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.25"
@@ -64,6 +65,7 @@
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.8",
     "@types/bcrypt": "^6.0.0",
+    "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/minio": "^7.1.0",

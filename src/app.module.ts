@@ -13,6 +13,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { ModulesModule } from './modules/modules.module';
 import { MinioModule } from './minio/minio.module';
 import { MediaModule } from './media/media.module';
+import { PdfService } from './pdf/pdf.service';
+import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
@@ -49,8 +51,10 @@ import { MediaModule } from './media/media.module';
     MinioModule,
 
     MediaModule,
+
+    PdfModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PdfService],
 })
 export class AppModule {}

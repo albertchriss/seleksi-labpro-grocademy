@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Certificate of Completion</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+      body {
+        font-family: 'Montserrat', sans-serif;
+        border: 20px solid #1d4ed8;
+        padding: 50px;
+        height: 100vh;
+        box-sizing: border-box;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #f7fafc;
+      }
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 52px;
+        color: #1d4ed8;
+        margin-bottom: 20px;
+      }
+      h2 {
+        font-size: 38px;
+        font-weight: 700;
+        color: #1a202c;
+        margin: 20px 0 10px 0;
+      }
+      p {
+        font-size: 18px;
+        color: #4a5568;
+        line-height: 1.6;
+      }
+      .subtitle {
+        font-size: 24px;
+        color: #718096;
+        margin-bottom: 40px;
+      }
+      .footer {
+        margin-top: 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-top: 2px solid #e2e8f0;
+        padding-top: 20px;
+      }
+      .footer-item {
+        text-align: center;
+        width: 45%;
+      }
+      .signature {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+      }
+      .line {
+        border-bottom: 1px solid #4a5568;
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Certificate of Completion</h1>
+    <p class="subtitle">This certificate is proudly presented to</p>
+    <h2><%= username %></h2>
+    <p>for successfully completing the course</p>
+    <h2><%= courseTitle %></h2>
+    <p>An intensive course taught by <strong><%= instructor %></strong>.</p>
+    <div class="footer">
+      <div class="footer-item">
+        <p class="signature"><%= instructor %></p>
+        <div class="line"></div>
+        <p><strong>Instructor</strong></p>
+      </div>
+      <div class="footer-item">
+        <p class="signature"><%= completionDate %></p>
+        <div class="line"></div>
+        <p><strong>Date of Completion</strong></p>
+      </div>
+    </div>
+  </body>
+</html>

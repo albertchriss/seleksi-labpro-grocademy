@@ -17,8 +17,6 @@ export class MediaService {
   async uploadMedia(file: Express.Multer.File): Promise<Media> {
     const { objectName } = await this.minioClientService.upload(file);
 
-    console.log(objectName);
-
     if (!objectName) {
       return null;
     }

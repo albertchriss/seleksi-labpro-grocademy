@@ -61,21 +61,29 @@
       <!-- Content -->
       <div class="flex-1 flex">
         <!-- Module List Sidebar -->
-        <div class="w-80 bg-white border-r border-gray-200 overflow-y-auto">
-          <div class="p-6">
+        <div class="w-80 bg-white border-r border-gray-200 overflow-y-auto flex flex-col">
+          <div class="p-6 flex-1 flex flex-col">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Daftar Modul</h2>
-            
             <div id="loading-modules" class="text-center py-8">
               <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
               <p class="mt-2 text-gray-600 text-sm">Memuat modul...</p>
             </div>
-
             <div id="modules-list" class="space-y-3 hidden">
               <!-- Modules will be inserted here -->
             </div>
-
             <div id="error-modules" class="hidden text-center py-8">
               <p class="text-red-600 text-sm">Gagal memuat modul</p>
+            </div>
+          </div>
+          <!-- Pagination Controls -->
+          <div class="px-6 pb-4">
+            <div class="flex items-center gap-2 justify-between">
+              <select id="modules-per-page-select" onchange="changeModulesPerPage()" class="border border-gray-300 rounded-xl px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="5">5 per halaman</option>
+                <option value="10" selected>10 per halaman</option>
+                <option value="20">20 per halaman</option>
+              </select>
+              <div id="modules-pagination-container" class="flex items-center gap-1"></div>
             </div>
           </div>
         </div>
@@ -203,12 +211,16 @@
     </div>
 
     <script>
-      let currentCourse = null;
-      let modules = [];
-      let currentModuleIndex = -1;
-      let completedModules = new Set();
+  let currentCourse = null;
+  let modules = [];
+  let currentModuleIndex = -1;
+  let completedModules = new Set();
+  // Pagination state for modules
+  let modulesCurrentPage = 1;
+  let modulesPerPage = 10;
+  let modulesTotalPages = 1;
 
-      async function loadCourseModules() {
+  async function loadCourseModules() {
         // Extract courseId from URL path /courses/:courseId/modules
         const pathParts = window.location.pathname.split('/');
         const courseId = pathParts[2]; // /courses/courseId/modules
@@ -259,7 +271,6 @@
 
             currentCourse = courseResult.data;
             modules = modulesResult.data.sort((a, b) => a.order - b.order);
-            
             // Initialize completed modules from API response
             completedModules = new Set();
             modules.forEach(module => {
@@ -267,11 +278,14 @@
                 completedModules.add(module.id);
               }
             });
-            
             // Update course title
             document.getElementById('course-title').textContent = currentCourse.title;
-            
+            // Setup pagination
+            modulesCurrentPage = 1;
+            modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
+            modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
             displayModulesList();
+            updateModulesPagination();
             updateProgress();
           } else if (courseResponse.status === 401 || modulesResponse.status === 401) {
             logout();
@@ -287,17 +301,26 @@
         const container = document.getElementById('modules-list');
         const loading = document.getElementById('loading-modules');
         const error = document.getElementById('error-modules');
-
         loading.classList.add('hidden');
         error.classList.add('hidden');
         container.classList.remove('hidden');
 
-        container.innerHTML = modules.map((module, index) => {
+        // Pagination logic
+        modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
+        modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
+        if (modulesCurrentPage > modulesTotalPages) modulesCurrentPage = modulesTotalPages;
+        const startIdx = (modulesCurrentPage - 1) * modulesPerPage;
+        const endIdx = Math.min(startIdx + modulesPerPage, modules.length);
+        const paginatedModules = modules.slice(startIdx, endIdx);
+
+        container.innerHTML = paginatedModules.map((module, i) => {
+          // The index for selectModule should be the real index in modules array
+          const realIndex = startIdx + i;
           const isCompleted = completedModules.has(module.id);
           return `
             <div 
-              onclick="selectModule(${index})"
-              class="p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors ${currentModuleIndex === index ? 'bg-blue-100 border-blue-300' : ''}"
+              onclick="selectModule(${realIndex})"
+              class="p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors ${currentModuleIndex === realIndex ? 'bg-blue-100 border-blue-300' : ''}"
             >
               <div class="flex items-center justify-between">
                 <div class="flex-1">
@@ -313,6 +336,49 @@
         }).join('');
       }
 
+      function updateModulesPagination() {
+        const container = document.getElementById('modules-pagination-container');
+        let html = '';
+        // Previous button
+        if (modulesCurrentPage > 1) {
+          html += `<button onclick="goToModulesPage(${modulesCurrentPage - 1})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">←</button>`;
+        }
+        // Page numbers (show up to 5 pages)
+        const startPage = Math.max(1, modulesCurrentPage - 2);
+        const endPage = Math.min(modulesTotalPages, modulesCurrentPage + 2);
+        if (startPage > 1) {
+          html += `<button onclick="goToModulesPage(1)" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">1</button>`;
+          if (startPage > 2) html += `<span class="px-1 text-gray-400">...</span>`;
+        }
+        for (let i = startPage; i <= endPage; i++) {
+          const isActive = i === modulesCurrentPage;
+          html += `<button onclick="goToModulesPage(${i})" class="px-2 py-1 text-xs border rounded ${isActive ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'}">${i}</button>`;
+        }
+        if (endPage < modulesTotalPages) {
+          if (endPage < modulesTotalPages - 1) html += `<span class="px-1 text-gray-400">...</span>`;
+          html += `<button onclick="goToModulesPage(${modulesTotalPages})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">${modulesTotalPages}</button>`;
+        }
+        // Next button
+        if (modulesCurrentPage < modulesTotalPages) {
+          html += `<button onclick="goToModulesPage(${modulesCurrentPage + 1})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">→</button>`;
+        }
+        container.innerHTML = html;
+      }
+
+      function goToModulesPage(page) {
+        modulesCurrentPage = page;
+        displayModulesList();
+        updateModulesPagination();
+      }
+
+      function changeModulesPerPage() {
+        modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
+        modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
+        modulesCurrentPage = 1;
+        displayModulesList();
+        updateModulesPagination();
+      }
+
       function showError(text) {
         showErrorModules()
         document.getElementById('no-module-selected').classList.add('hidden');
@@ -324,7 +390,16 @@
 
       function selectModule(index) {
         currentModuleIndex = index;
-        displayModulesList(); // Refresh to update selection
+        // If the selected module is not on the current page, change page
+        const startIdx = (modulesCurrentPage - 1) * modulesPerPage;
+        const endIdx = startIdx + modulesPerPage;
+        if (index < startIdx || index >= endIdx) {
+          modulesCurrentPage = Math.floor(index / modulesPerPage) + 1;
+          displayModulesList();
+          updateModulesPagination();
+        } else {
+          displayModulesList();
+        }
         showModuleContent();
         updateNavigationButtons();
       }

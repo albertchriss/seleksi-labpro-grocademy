@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { TransactionModule } from 'src/transaction/transaction.module';
 import { MediaModule } from 'src/media/media.module';
 import { Account } from 'src/entities/account.entity';
+import { PdfModule } from 'src/pdf/pdf.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { Account } from 'src/entities/account.entity';
     UsersModule,
     TransactionModule,
     MediaModule,
+    PdfModule,
   ],
   controllers: [CoursesController],
   providers: [CoursesService],

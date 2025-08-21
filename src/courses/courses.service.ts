@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from '../entities/course.entity';
@@ -24,6 +25,7 @@ import { GetMyCoursesResponseDto } from './dto/get-my-courses.dto';
 import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
 import { MediaService } from 'src/media/media.service';
 import { Media } from 'src/entities/media.entity';
+import { PdfService } from 'src/pdf/pdf.service';
 
 @Injectable()
 export class CoursesService {
@@ -35,6 +37,7 @@ export class CoursesService {
     private userService: UsersService,
     private transactionService: TransactionService,
     private mediaService: MediaService,
+    private pdfService: PdfService,
   ) {}
 
   findAll(): Promise<Course[]> {
@@ -466,5 +469,49 @@ export class CoursesService {
     return {
       module_order: reorderModulesDto.module_order,
     };
+  }
+
+  async generateCertificate(courseId: string, userId: string): Promise<Buffer> {
+    const user = await this.userService.findUserByIdSimple(userId);
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId },
+      relations: ['modules'],
+    });
+
+    if (!user || !course) {
+      throw new NotFoundException('User or Course not found');
+    }
+
+    if (course.modules.length === 0) {
+      throw new BadRequestException('Course has no modules');
+    }
+
+    const transaction = await this.transactionService.findByUserIdAndCourseId(
+      userId,
+      courseId,
+    );
+
+    // Verify if all modules are completed
+    if (transaction.userProgress.length !== course.modules.length) {
+      throw new UnauthorizedException('Course is not yet completed');
+    }
+
+    // The completion date is the date the last module was completed
+    const completionDate = transaction.userProgress.sort(
+      (a, b) => b.created_at.getTime() - a.created_at.getTime(),
+    )?.[0].created_at;
+
+    const data = {
+      username: `${user.first_name} ${user.last_name}`,
+      courseTitle: course.title,
+      instructor: course.instructor,
+      completionDate: completionDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+    };
+
+    return this.pdfService.generatePdfFromHtml('certif-template.ejs', data);
   }
 }

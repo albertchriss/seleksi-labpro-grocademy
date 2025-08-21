@@ -12,7 +12,11 @@ import {
   Put,
   UploadedFile,
   UploadedFiles,
+  Req,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
@@ -38,6 +42,7 @@ import { CourseDetailResponseDto } from './dto/course-detail.dto';
 import { AuthenticatedRequest } from 'src/auth/interfaces/auth.interface';
 import { GetMyCoursesResponseDto } from './dto/get-my-courses.dto';
 import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
+import { SkipResponseInterceptor } from 'src/auth/decorators/skip-response-interceptor.decorator';
 
 @ApiTags('courses')
 @Controller('api/courses')
@@ -305,5 +310,27 @@ export class CoursesController {
     @Body() reorderModulesDto: ReorderModulesDto,
   ): Promise<ReorderModulesResponseDto> {
     return this.coursesService.reorderModules(courseId, reorderModulesDto);
+  }
+
+  @Auth()
+  @SkipResponseInterceptor()
+  @Get(':id/certificate')
+  async downloadCertificate(
+    @Param('id') courseId: string,
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const userId = req.user.id;
+    const pdfBuffer = await this.coursesService.generateCertificate(
+      courseId,
+      userId,
+    );
+
+    const filename = `Certificate-Grocademy.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    return new StreamableFile(pdfBuffer);
   }
 }
