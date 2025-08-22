@@ -13,7 +13,7 @@ FROM base AS builder
 # Install all dependencies (including dev)
 COPY package.json package-lock.json ./
 RUN npm ci
-# Copy source code and build the application
+# Copy all source code (including the 'views' folder)
 COPY . .
 RUN npm run build
 
@@ -23,6 +23,11 @@ FROM base AS runner
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
 # Copy the built application from the 'builder' stage
 COPY --from=builder /usr/src/app/dist ./dist
+
+# FIX: COPY THE VIEWS AND TEMPLATES DIRECTORIES
+COPY --from=builder /usr/src/app/views ./views
+# NOTE: Your templates are inside the views folder, so the above line is sufficient.
+# If you had a separate 'templates' folder at the root, you would copy it too.
 
 # The port your app listens on inside the container
 EXPOSE 3000
