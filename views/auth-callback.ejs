@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Authenticating...</title>
+  </head>
+  <body>
+    <p>Please wait while we log you in...</p>
+
+    <script>
+      const token = '<%= token %>';
+
+      if (token) {
+        localStorage.setItem('token', token);
+
+        window.location.href = '/courses';
+      } else {
+        window.location.href = '/login';
+      }
+    </script>
+  </body>
+</html>

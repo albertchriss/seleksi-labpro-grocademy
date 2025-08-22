@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -14,6 +15,7 @@ import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { RegisterDto, RegisterResponseDto } from './dto/register.dto';
 import { Auth } from './decorators/auth.decorator';
 import { SelfDto } from './dto/self.dto';
+import { Response } from 'express';
 
 @Controller('api/auth')
 export class AuthController {
@@ -46,5 +48,26 @@ export class AuthController {
     const { created_at, updated_at, profile_pic, ...userWithoutTimestamps } =
       req.user;
     return userWithoutTimestamps as SelfDto;
+  }
+
+  // New Google Auth Routes
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Initiate Google OAuth' })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async googleAuth(@Request() req) {
+    // Guards redirects
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  @ApiOperation({ summary: 'Google OAuth callback' })
+  async googleAuthRedirect(
+    @Request() req: AuthenticatedRequest,
+    @Res() res: Response,
+  ) {
+    const { token } = await this.authService.googleLogin(req);
+
+    res.render('auth-callback', { token });
   }
 }

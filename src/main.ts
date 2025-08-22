@@ -23,11 +23,8 @@ async function bootstrap() {
   app.setViewEngine('ejs');
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // allow local frontend
-      'https://labpro-ohl-2025-fe.hmif.dev', // allow production frontend
-    ],
-    credentials: true, // if you need cookies/auth headers
+    origin: ['http://localhost:3000', 'https://labpro-ohl-2025-fe.hmif.dev'],
+    credentials: true,
   });
   // Apply response interceptor globally
   app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
