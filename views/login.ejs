@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grocademy - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .gradient-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      }
+      .gradient-gold {
+        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+      }
+    </style>
+  </head>
+  <body class="gradient-bg min-h-screen flex items-center justify-center p-5">
+    <div
+      class="bg-white rounded-3xl p-10 shadow-2xl w-full max-w-md text-center"
+    >
+      <div
+        class="w-20 h-20 gradient-gold rounded-2xl mx-auto mb-5 flex items-center justify-center text-4xl"
+      >
+        🎓
+      </div>
+      <h1 id="page-title" class="text-primary-600 text-3xl font-semibold mb-2">
+        Grocademy Login
+      </h1>
+      <p class="text-gray-400 text-sm mb-8" id="page-subtitle">
+        Masuk untuk mengakses dashboard
+      </p>
+
+      <div id="message-container" class="mb-5"></div>
+
+      <form id="auth-form" class="space-y-5">
+        <!-- Login Form -->
+        <div id="login-form" class="space-y-5">
+          <div class="text-left">
+            <label
+              for="login-identifier"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Email atau Username</label
+            >
+            <input
+              type="text"
+              id="login-identifier"
+              name="identifier"
+              placeholder="admin@example.com"
+              required
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <div class="text-left">
+            <label
+              for="login-password"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Kata Sandi</label
+            >
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="••••••••"
+              required
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full p-4 gradient-primary text-white border-0 rounded-xl text-base font-semibold cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0 mb-5"
+            id="login-btn"
+          >
+            Masuk ke Grocademy
+          </button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form" class="space-y-5 hidden">
+          <div class="text-left">
+            <label
+              for="register-email"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="register-email"
+              name="email"
+              placeholder="your@email.com"
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <div class="text-left">
+            <label
+              for="register-username"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Username</label
+            >
+            <input
+              type="text"
+              id="register-username"
+              name="username"
+              placeholder="username"
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <div class="text-left">
+            <label
+              for="register-first-name"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Nama Depan</label
+            >
+            <input
+              type="text"
+              id="register-first-name"
+              name="first_name"
+              placeholder="John"
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <div class="text-left">
+            <label
+              for="register-last-name"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Nama Belakang</label
+            >
+            <input
+              type="text"
+              id="register-last-name"
+              name="last_name"
+              placeholder="Doe"
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <div class="text-left">
+            <label
+              for="register-password"
+              class="block text-primary-600 text-sm font-medium mb-2"
+              >Kata Sandi</label
+            >
+            <input
+              type="password"
+              id="register-password"
+              name="password"
+              placeholder="••••••••"
+              minlength="6"
+              class="w-full p-4 border-2 border-gray-200 rounded-xl text-base transition-colors focus:outline-none focus:border-primary-500 bg-gray-50 focus:bg-white"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full p-4 gradient-primary text-white border-0 rounded-xl text-base font-semibold cursor-pointer transition-transform hover:-translate-y-0.5 active:translate-y-0 mb-5"
+            id="register-btn"
+          >
+            Daftar ke Grocademy
+          </button>
+        </div>
+      </form>
+
+      <a
+        href="#"
+        class="text-primary-600 no-underline text-sm font-medium flex items-center justify-center gap-1 hover:underline mt-2"
+        id="switch-mode"
+      >
+        <span>🔄</span>
+        <span id="switch-text">Belum punya akun? Daftar sekarang</span>
+      </a>
+    </div>
+
+    <script>
+      let isLoginMode = false;
+
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const pageTitle = document.getElementById('page-title');
+      const pageSubtitle = document.getElementById('page-subtitle');
+      const switchMode = document.getElementById('switch-mode');
+      const switchText = document.getElementById('switch-text');
+      const authForm = document.getElementById('auth-form');
+      const messageContainer = document.getElementById('message-container');
+
+      function showMessage(message, type = 'error') {
+        const className =
+          type === 'error'
+            ? 'bg-red-100 text-red-600'
+            : 'bg-green-100 text-green-600';
+        messageContainer.innerHTML = `<div class="${className} p-3 rounded-lg text-sm">${message}</div>`;
+        setTimeout(() => {
+          messageContainer.innerHTML = '';
+        }, 5000);
+      }
+
+      function toggleMode() {
+        isLoginMode = !isLoginMode;
+
+        if (isLoginMode) {
+          loginForm.classList.remove('hidden');
+          registerForm.classList.add('hidden');
+          pageTitle.textContent = 'Grocademy Login';
+          pageSubtitle.textContent = 'Masuk untuk mengakses dashboard';
+          switchText.textContent = 'Belum punya akun? Daftar sekarang';
+
+          // Enable required validation for login fields
+          document.getElementById('login-identifier').required = true;
+          document.getElementById('login-password').required = true;
+
+          // Disable required validation for register fields
+          document.getElementById('register-email').required = false;
+          document.getElementById('register-username').required = false;
+          document.getElementById('register-first-name').required = false;
+          document.getElementById('register-last-name').required = false;
+          document.getElementById('register-password').required = false;
+        } else {
+          loginForm.classList.add('hidden');
+          registerForm.classList.remove('hidden');
+          pageTitle.textContent = 'Grocademy Register';
+          pageSubtitle.textContent = 'Buat akun baru untuk memulai';
+          switchText.textContent = 'Sudah punya akun? Masuk sekarang';
+
+          // Disable required validation for login fields
+          document.getElementById('login-identifier').required = false;
+          document.getElementById('login-password').required = false;
+
+          // Enable required validation for register fields
+          document.getElementById('register-email').required = true;
+          document.getElementById('register-username').required = true;
+          document.getElementById('register-first-name').required = true;
+          document.getElementById('register-last-name').required = true;
+          document.getElementById('register-password').required = true;
+        }
+
+        messageContainer.innerHTML = '';
+      }
+
+      switchMode.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleMode();
+      });
+
+      authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Check form validity
+        const isValid = authForm.checkValidity();
+
+        if (!isValid) {
+          authForm.reportValidity();
+          return;
+        }
+
+        const container = document.querySelector('.bg-white');
+        container.classList.add('opacity-70', 'pointer-events-none');
+
+        try {
+          let formData;
+          let endpoint;
+
+          if (isLoginMode) {
+            formData = {
+              identifier: document.getElementById('login-identifier').value,
+              password: document.getElementById('login-password').value,
+            };
+            endpoint = '/api/auth/login';
+          } else {
+            formData = {
+              email: document.getElementById('register-email').value,
+              username: document.getElementById('register-username').value,
+              first_name: document.getElementById('register-first-name').value,
+              last_name: document.getElementById('register-last-name').value,
+              password: document.getElementById('register-password').value,
+            };
+            endpoint = '/api/auth/register';
+          }
+
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            if (isLoginMode) {
+              showMessage('Login berhasil!', 'success');
+              localStorage.setItem('token', result.data.token);
+              setTimeout(() => {
+                window.location.href = '/courses';
+              }, 1000);
+            } else {
+              showMessage('Registrasi berhasil! Silakan login.', 'success');
+              setTimeout(() => {
+                toggleMode();
+              }, 1500);
+            }
+          } else {
+            showMessage(result.message || 'Terjadi kesalahan');
+          }
+        } catch (error) {
+          console.error('Network error:', error); // Debug log
+          showMessage('Terjadi kesalahan jaringan');
+        } finally {
+          container.classList.remove('opacity-70', 'pointer-events-none');
+        }
+      });
+
+      const token = localStorage.getItem('token');
+      if (token) {
+        window.location.href = '/courses';
+      }
+
+      toggleMode();
+    </script>
+  </body>
+</html>

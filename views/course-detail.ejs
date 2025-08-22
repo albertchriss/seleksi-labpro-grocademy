@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grocademy - Course Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .gradient-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      }
+      .gradient-gold {
+        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+      }
+      .sidebar-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      .sidebar-item.active {
+        background-color: #ffd700;
+        color: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex">
+    <%- include('partials/sidebar', { activeMenu: 'courses' }) %>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <div class="bg-white border-b border-gray-200 px-8 py-6">
+        <div class="flex items-center gap-4">
+          <button 
+            onclick="goBack()"
+            class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors"
+          >
+            <span>←</span>
+            <span>Kembali</span>
+          </button>
+          <div class="h-6 w-px bg-gray-300"></div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Detail Kursus</h1>
+            <p class="text-gray-600 mt-1">Informasi lengkap tentang kursus</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Content -->
+      <div class="flex-1 p-8">
+        <div id="loading" class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p class="mt-2 text-gray-600">Memuat detail kursus...</p>
+        </div>
+
+        <div id="error-container" class="hidden">
+          <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
+            <p class="font-medium">Gagal memuat detail kursus</p>
+            <p class="text-sm mt-1">Silakan coba lagi nanti atau hubungi administrator.</p>
+          </div>
+        </div>
+
+        <div id="course-detail-container" class="hidden">
+          <div class="max-w-4xl mx-auto">
+            <!-- Course Header -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8">
+              <div class="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-8xl border-b border-gray-200">
+                📖
+              </div>
+              <div class="p-8">
+                <h1 id="course-title" class="text-4xl font-bold text-gray-900 mb-4">Loading...</h1>
+                <p id="course-description" class="text-gray-600 text-lg mb-6 leading-relaxed">Loading...</p>
+                
+                <div class="flex flex-wrap items-center gap-6 mb-6">
+                  <div class="flex items-center gap-2">
+                    <span class="text-yellow-500 text-xl">⭐</span>
+                    <span id="course-instructor" class="text-lg font-medium text-gray-700">Loading...</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-blue-500 text-xl">💰</span>
+                    <span id="course-price" class="text-3xl font-bold text-blue-600">Loading...</span>
+                  </div>
+                </div>
+
+                <!-- Topics -->
+                <div class="mb-8">
+                  <h3 class="text-xl font-semibold text-gray-900 mb-3">Topik yang Dipelajari</h3>
+                  <div id="course-topics" class="flex flex-wrap gap-2">
+                    <!-- Topics will be inserted here -->
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <!-- Action Buttons -->
+                  <div id="course-actions" class="flex gap-4">
+                    <!-- Action buttons will be inserted here -->
+                  </div>
+                  <p id="course-total-modules" class="text-right text-lg">
+
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Purchase Confirmation Modal -->
+            <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+              <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Konfirmasi Pembelian</h3>
+                <p class="text-gray-600 mb-6">Apakah Anda yakin ingin membeli kursus ini?</p>
+                <div class="flex items-center justify-between mb-6">
+                  <span class="text-lg text-gray-700">Total Pembayaran:</span>
+                  <span id="modal-price" class="text-2xl font-bold text-blue-600">$0</span>
+                </div>
+                <div class="flex gap-4">
+                  <button 
+                    onclick="closePurchaseModal()"
+                    class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    onclick="confirmPurchase()"
+                    class="flex-1 px-4 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow"
+                  >
+                    Beli Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentCourse = null;
+      let userBalance = 0;
+      let isPurchased = false;
+
+      async function loadCourseDetail() {
+        // Extract courseId from URL path /courses/:courseId
+        const pathParts = window.location.pathname.split('/');
+        const courseId = pathParts[2]; // /courses/courseId
+        
+        if (!courseId) {
+          showError('Course ID tidak ditemukan');
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/login';
+          return;
+        }
+
+        try {
+          showLoading();
+
+          // Load course detail and user profile in parallel
+          const [courseResponse, userResponse] = await Promise.all([
+            fetch(`/api/courses/${courseId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            }),
+            fetch('/api/auth/self', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+          ]);
+
+          if (courseResponse.ok && userResponse.ok) {
+            const courseResult = await courseResponse.json();
+            const userResult = await userResponse.json();
+            
+            currentCourse = courseResult.data;
+            userBalance = userResult.data.balance;
+            
+            // Check if user has purchased this course
+            const myCoursesResponse = await fetch('/api/courses/my-courses', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (myCoursesResponse.ok) {
+              const myCoursesResult = await myCoursesResponse.json();
+              isPurchased = myCoursesResult.data.some(course => course.id === courseId);
+            }
+
+            displayCourseDetail();
+          } else if (courseResponse.status === 401 || userResponse.status === 401) {
+            logout();
+          } else {
+            showError('Gagal memuat detail kursus');
+          }
+        } catch (error) {
+          console.error('Error loading course detail:', error);
+          showError('Terjadi kesalahan jaringan');
+        }
+      }
+
+      function displayCourseDetail() {
+        const container = document.getElementById('course-detail-container');
+        const loading = document.getElementById('loading');
+        const errorContainer = document.getElementById('error-container');
+
+        loading.classList.add('hidden');
+        errorContainer.classList.add('hidden');
+        container.classList.remove('hidden');
+
+        // Update course information
+        document.getElementById('course-title').textContent = currentCourse.title;
+        document.getElementById('course-description').textContent = currentCourse.description;
+        document.getElementById('course-instructor').textContent = `by ${currentCourse.instructor}`;
+        document.getElementById('course-price').textContent = `$${currentCourse.price}`;
+        document.getElementById('course-total-modules').textContent = `Jumlah Modul: ${currentCourse.total_modules}`;
+
+        // Update topics
+        const topicsContainer = document.getElementById('course-topics');
+        topicsContainer.innerHTML = currentCourse.topics.map(topic => 
+          `<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">${topic}</span>`
+        ).join('');
+
+        // Update action buttons
+        const actionsContainer = document.getElementById('course-actions');
+        
+        if (isPurchased) {
+          actionsContainer.innerHTML = `
+            <button 
+              onclick="goToModules()"
+              class="px-8 py-4 gradient-primary text-white rounded-xl font-semibold text-lg hover:shadow-lg transition-shadow flex items-center gap-2"
+            >
+              <span>📚</span>
+              <span>Mulai Belajar</span>
+            </button>
+            <button 
+              onclick="downloadCertificate()"
+              class="px-8 py-4 bg-green-600 text-white rounded-xl font-semibold text-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+              id="certificate-btn"
+              style="display: none;"
+            >
+              <span>🏆</span>
+              <span>Unduh Sertifikat</span>
+            </button>
+          `;
+          
+          // Check if user has completed all modules
+          checkCourseCompletion();
+        } else {
+          const canAfford = userBalance >= currentCourse.price;
+          actionsContainer.innerHTML = `
+            <button 
+              onclick="openPurchaseModal()"
+              class="px-8 py-4 ${canAfford ? 'gradient-primary hover:shadow-lg' : 'bg-gray-400 cursor-not-allowed'} text-white rounded-xl font-semibold text-lg transition-shadow flex items-center gap-2"
+              ${!canAfford ? 'disabled' : ''}
+            >
+              <span>💳</span>
+              <span>${canAfford ? 'Beli Kursus' : 'Saldo Tidak Cukup'}</span>
+            </button>
+            <div class="text-sm text-gray-600 flex items-center gap-2">
+              <span>💰 Saldo Anda: $${userBalance.toLocaleString()}</span>
+            </div>
+          `;
+        }
+      }
+
+      async function checkCourseCompletion() {
+        // This would check if user has completed all modules
+        // For now, we'll hide the certificate button
+        // In a real implementation, this would check module completion status
+      }
+
+      function openPurchaseModal() {
+        document.getElementById('modal-price').textContent = `$${currentCourse.price}`;
+        document.getElementById('purchase-modal').classList.remove('hidden');
+      }
+
+      function closePurchaseModal() {
+        document.getElementById('purchase-modal').classList.add('hidden');
+      }
+
+      async function confirmPurchase() {
+        const token = localStorage.getItem('token');
+        
+        try {
+          const response = await fetch(`/api/courses/${currentCourse.id}/buy`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            closePurchaseModal();
+            showMessage('Kursus berhasil dibeli! Selamat belajar!', 'success');
+            
+            // Reload page to update status
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            const result = await response.json();
+            showMessage(result.message || 'Gagal membeli kursus', 'error');
+          }
+        } catch (error) {
+          console.error('Error purchasing course:', error);
+          showMessage('Terjadi kesalahan jaringan', 'error');
+        }
+      }
+
+      function goToModules() {
+        window.location.href = `/courses/${currentCourse.id}/modules`;
+      }
+
+      function downloadCertificate() {
+        // Implementation for certificate download
+        console.log('Download certificate for course:', currentCourse.id);
+      }
+
+      function goBack() {
+        window.history.back();
+      }
+
+      function showLoading() {
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('course-detail-container').classList.add('hidden');
+        document.getElementById('error-container').classList.add('hidden');
+      }
+
+      function showError(message) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('course-detail-container').classList.add('hidden');
+        document.getElementById('error-container').classList.remove('hidden');
+        document.querySelector('#error-container p').textContent = message;
+      }
+
+      function showMessage(message, type = 'error') {
+        const className = type === 'error' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
+        const messageDiv = document.createElement('div');
+        messageDiv.innerHTML = `<div class="${className} p-4 rounded-lg fixed top-4 right-4 z-50 shadow-lg">${message}</div>`;
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+          document.body.removeChild(messageDiv);
+        }, 5000);
+      }
+
+      function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+
+      // Load course detail when page loads
+      document.addEventListener('DOMContentLoaded', loadCourseDetail);
+
+      // Check if already logged in
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+      }
+    </script>
+  </body>
+</html>

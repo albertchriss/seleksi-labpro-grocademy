@@ -1,0 +1,33 @@
+<template id="course-template">
+  <a
+    class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 course-anchor"
+    href="#"
+  >
+    <div
+      class="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-5xl border-b border-gray-200"
+    >
+      <img src="" alt="Course Image" class="w-full aspect-video object-cover hidden course-image" />
+      <p class="text-center image-placeholder">📖</p>
+    </div>
+    <div class="p-6">
+      <h3
+        class="font-bold text-xl text-gray-900 mb-3 line-clamp-2 course-title"
+      ></h3>
+      <p class="text-gray-600 text-sm mb-4 line-clamp-3 course-description"></p>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-yellow-500">⭐</span>
+        <span
+          class="text-sm font-medium text-gray-700 course-instructor"
+        ></span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-2xl font-bold text-blue-600 course-price"></span>
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium course-button"
+        >
+          Pelajari
+        </button>
+      </div>
+    </div>
+  </a>
+</template>

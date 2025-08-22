@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Certificate of Completion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Montserrat', sans-serif;
+      }
+      .font-playfair {
+        font-family: 'Playfair Display', serif;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+    <div
+      class="bg-white border-8 border-blue-600 rounded-3xl shadow-2xl px-12 py-14 max-w-2xl w-full text-center relative"
+    >
+      <div class="flex flex-col items-center mb-8">
+        <div class="text-6xl mb-2" style="color: #fbbf24">🏆</div>
+        <div
+          class="font-playfair text-4xl md:text-5xl font-bold text-blue-700 mb-2 tracking-wide"
+        >
+          Certificate of Completion
+        </div>
+        <div class="text-lg text-slate-500 mb-8 font-medium">
+          This certificate is proudly presented to
+        </div>
+        <div class="text-3xl font-bold text-slate-800 mb-2">
+          <%= username %>
+        </div>
+        <div class="text-base text-slate-600 mb-2">
+          for successfully completing the course
+        </div>
+        <div class="font-playfair text-2xl font-bold text-blue-600 mb-2">
+          <%= courseTitle %>
+        </div>
+        <div class="text-base text-slate-700 mb-6">
+          An intensive course taught by
+          <span class="font-semibold"><%= instructor %></span>.
+        </div>
+      </div>
+      <div
+        class="flex justify-between items-end mt-12 border-t-2 border-slate-200 pt-8"
+      >
+        <div class="w-2/5 text-center">
+          <div
+            class="font-playfair text-lg text-slate-800 font-semibold mb-4 mt-2"
+          >
+            <%= instructor %>
+          </div>
+          <div class="border-b border-slate-400 w-4/5 mx-auto mb-2"></div>
+          <div class="text-slate-500 text-sm font-medium tracking-wide">
+            Instructor
+          </div>
+        </div>
+        <div class="w-2/5 text-center">
+          <div
+            class="font-playfair text-lg text-slate-800 font-semibold mb-4 mt-2"
+          >
+            <%= completionDate %>
+          </div>
+          <div class="border-b border-slate-400 w-4/5 mx-auto mb-2"></div>
+          <div class="text-slate-500 text-sm font-medium tracking-wide">
+            Date of Completion
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

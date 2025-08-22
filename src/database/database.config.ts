@@ -1,6 +1,8 @@
-// src/database/database.config.ts
 import { ConfigService } from '@nestjs/config';
 import { DataSourceOptions } from 'typeorm';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export const createDatabaseConfig = (
   configService?: ConfigService,
