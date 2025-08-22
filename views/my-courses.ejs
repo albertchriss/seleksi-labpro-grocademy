@@ -56,16 +56,6 @@
               Cari
             </button>
           </div>
-
-          <select 
-            id="per-page-select" 
-            onchange="changePerPage()"
-            class="border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="10">10 per halaman</option>
-            <option value="20">20 per halaman</option>
-            <option value="50">50 per halaman</option>
-          </select>
         </div>
       </div>
 
@@ -90,12 +80,27 @@
             <!-- Course cards will be inserted here -->
           </div>
 
+          <div class="flex justify-between mb-3">
+            <div class="gap-2 flex items-center">
+              Menampilkan 
+              <select 
+                id="per-page-select" 
+                onchange="changePerPage()"
+                class="border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              Kursus
+            </div>
+            <p id="pagination-info">
+            </p>
+          </div>
           <!-- Pagination -->
           <div id="pagination-container" class="flex justify-center items-center gap-2">
             <!-- Pagination will be inserted here -->
           </div>
-
-        </div>
 
         <!-- Empty State -->
         <div id="empty-state" class="hidden text-center py-12">
@@ -117,6 +122,7 @@
       let currentPage = 1;
       let perPage = 10;
       let totalPages = 1;
+      let totalItems = 0;
 
       async function loadMyCourses() {
         const token = localStorage.getItem('token');
@@ -185,7 +191,7 @@
           clone.querySelector('.course-title').textContent = course.title || 'Untitled Course';
           clone.querySelector('.course-description').classList.add('hidden');
           clone.querySelector('.course-instructor').textContent = `by ${course.instructor || 'Unknown'}`;
-          clone.querySelector('.course-price').textContent = ``;
+          clone.querySelector('.course-price').textContent = `${course.progress_percentage || 0}%`;
           clone.querySelector('.course-anchor').href = `/courses/${course.id}`;
           clone.querySelector('.course-button').onclick = (e) => {
             e.preventDefault();
@@ -204,8 +210,12 @@
 
       function setupPagination(pagination) {
         totalPages = pagination.total_pages || 1;
+        totalItems = pagination.total_items || 0;
         const container = document.getElementById('pagination-container');
-        
+        const info = document.getElementById('pagination-info');
+
+        info.textContent = `Menampilkan ${(currentPage-1) * perPage + 1} hingga ${Math.min(currentPage * perPage, totalItems)} dari ${totalItems} entri`;
+
         let paginationHTML = '';
         
         // Previous button

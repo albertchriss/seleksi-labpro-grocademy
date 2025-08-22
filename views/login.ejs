@@ -287,7 +287,7 @@
 
           if (response.ok) {
             if (isLoginMode) {
-              showMessage('Login berhasil! Menyimpan token...', 'success');
+              showMessage('Login berhasil!', 'success');
               localStorage.setItem('token', result.data.token);
               setTimeout(() => {
                 window.location.href = '/courses';

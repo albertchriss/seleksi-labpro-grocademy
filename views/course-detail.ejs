@@ -88,9 +88,14 @@
                   </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div id="course-actions" class="flex gap-4">
-                  <!-- Action buttons will be inserted here -->
+                <div class="flex justify-between items-center">
+                  <!-- Action Buttons -->
+                  <div id="course-actions" class="flex gap-4">
+                    <!-- Action buttons will be inserted here -->
+                  </div>
+                  <p id="course-total-modules" class="text-right text-lg">
+
+                  </p>
                 </div>
               </div>
             </div>
@@ -202,6 +207,7 @@
         document.getElementById('course-description').textContent = currentCourse.description;
         document.getElementById('course-instructor').textContent = `by ${currentCourse.instructor}`;
         document.getElementById('course-price').textContent = `$${currentCourse.price}`;
+        document.getElementById('course-total-modules').textContent = `Jumlah Modul: ${currentCourse.total_modules}`;
 
         // Update topics
         const topicsContainer = document.getElementById('course-topics');

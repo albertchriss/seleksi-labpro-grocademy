@@ -37,6 +37,7 @@ export class PdfService {
 
       const pdfBuffer = await page.pdf({
         format: 'A4',
+        landscape: true, // Set to landscape orientation
         printBackground: true,
         margin: {
           top: '0px',

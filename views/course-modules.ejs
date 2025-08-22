@@ -1,41 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grocademy - Course Modules</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .gradient-primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      }
-      .gradient-gold {
-        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
-      }
-      .sidebar-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-      .sidebar-item.active {
-        background-color: #ffd700;
-        color: #1d4ed8;
-      }
-      .progress-bar {
-        transition: width 0.3s ease;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex">
-    <%- include('partials/sidebar', { activeMenu: 'my-courses' }) %>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grocademy - Course Modules</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .gradient-gold {
+      background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+    }
+
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-item.active {
+      background-color: #ffd700;
+      color: #1d4ed8;
+    }
+
+    .progress-bar {
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex">
+  <%- include('partials/sidebar', { activeMenu: 'my-courses' }) %>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
       <!-- Header -->
       <div class="bg-white border-b border-gray-200 px-8 py-6">
         <div class="flex items-center gap-4">
-          <button 
-            onclick="goBack()"
-            class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors"
-          >
+          <button onclick="goBack()"
+            class="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors">
             <span>←</span>
             <span>Kembali</span>
           </button>
@@ -48,8 +52,13 @@
             <div class="text-sm text-gray-600">Progress Kursus</div>
             <div class="text-2xl font-bold text-blue-600" id="progress-text">0%</div>
           </div>
+          <button id="cert-button" onclick="downloadCertificate()"
+            class="ml-2 px-6 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow flex items-center gap-2 hidden">
+            <span>Unduh Sertifikat</span>
+            <span>🏆</span>
+          </button>
         </div>
-        
+
         <!-- Progress Bar -->
         <div class="mt-4">
           <div class="w-full bg-gray-200 rounded-full h-3">
@@ -77,8 +86,9 @@
           </div>
           <!-- Pagination Controls -->
           <div class="px-6 pb-4">
-            <div class="flex items-center gap-2 justify-between">
-              <select id="modules-per-page-select" onchange="changeModulesPerPage()" class="border border-gray-300 rounded-xl px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex flex-col items-center gap-2">
+              <select id="modules-per-page-select" onchange="changeModulesPerPage()"
+                class="border border-gray-300 rounded-xl px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
                 <option value="5">5 per halaman</option>
                 <option value="10" selected>10 per halaman</option>
                 <option value="20">20 per halaman</option>
@@ -103,7 +113,8 @@
               <div class="text-6xl mb-4">❌</div>
               <h3 class="text-xl font-semibold text-red-600 mb-2">Gagal Memuat Modul</h3>
               <p class="text-gray-600 mb-2">Terjadi kesalahan dalam memuat modul</p>
-              <a href="/my-courses" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <a href="/my-courses"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 Kembali ke Daftar Kursus
               </a>
             </div>
@@ -118,11 +129,8 @@
                       <h1 id="module-title" class="text-3xl font-bold text-gray-900 mb-2">Module Title</h1>
                       <p id="module-description" class="text-gray-600">Module description</p>
                     </div>
-                    <button 
-                      id="complete-btn"
-                      onclick="toggleModuleCompletion()"
-                      class="px-6 py-3 rounded-xl font-semibold transition-colors"
-                    >
+                    <button id="complete-btn" onclick="toggleModuleCompletion()"
+                      class="px-6 py-3 rounded-xl font-semibold transition-colors">
                       Tandai Selesai
                     </button>
                   </div>
@@ -159,20 +167,14 @@
 
                   <!-- Module Navigation -->
                   <div class="flex justify-between items-center pt-6 border-t border-gray-200">
-                    <button 
-                      id="prev-module-btn"
-                      onclick="navigateModule('prev')"
-                      class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-                    >
+                    <button id="prev-module-btn" onclick="navigateModule('prev')"
+                      class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
                       <span>←</span>
                       <span>Modul Sebelumnya</span>
                     </button>
-                    
-                    <button 
-                      id="next-module-btn"
-                      onclick="navigateModule('next')"
-                      class="px-6 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow flex items-center gap-2"
-                    >
+
+                    <button id="next-module-btn" onclick="navigateModule('next')"
+                      class="px-6 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow flex items-center gap-2">
                       <span>Modul Selanjutnya</span>
                       <span>→</span>
                     </button>
@@ -185,23 +187,21 @@
       </div>
 
       <!-- Certificate Modal -->
-      <div id="certificate-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+      <div id="certificate-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
           <div class="text-center">
             <div class="text-6xl mb-4">🏆</div>
             <h3 class="text-2xl font-bold text-gray-900 mb-4">Selamat!</h3>
-            <p class="text-gray-600 mb-6">Anda telah menyelesaikan seluruh modul dalam kursus ini. Sertifikat Anda sudah siap untuk diunduh!</p>
+            <p class="text-gray-600 mb-6">Anda telah menyelesaikan seluruh modul dalam kursus ini. Sertifikat Anda sudah
+              siap untuk diunduh!</p>
             <div class="flex gap-4">
-              <button 
-                onclick="closeCertificateModal()"
-                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+              <button onclick="closeCertificateModal()"
+                class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                 Tutup
               </button>
-              <button 
-                onclick="downloadCertificate()"
-                class="flex-1 px-4 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow"
-              >
+              <button onclick="downloadCertificate()"
+                class="flex-1 px-4 py-3 gradient-primary text-white rounded-lg hover:shadow-lg transition-shadow">
                 Unduh Sertifikat
               </button>
             </div>
@@ -211,20 +211,23 @@
     </div>
 
     <script>
-  let currentCourse = null;
-  let modules = [];
-  let currentModuleIndex = -1;
-  let completedModules = new Set();
-  // Pagination state for modules
-  let modulesCurrentPage = 1;
-  let modulesPerPage = 10;
-  let modulesTotalPages = 1;
+      let currentCourse = null;
+      let courseId = null;
+      let modules = [];
+      let currentModuleIndex = -1;
+      let completedModules = new Set();
+      // Pagination state for modules
+      let modulesCurrentPage = 1;
+      let modulesPerPage = 5;
+      let modulesTotalPages = 1;
+      let totalModules = 0;
+      let progressPercentage = 0;
 
-  async function loadCourseModules() {
+      async function loadMyCourses() {
         // Extract courseId from URL path /courses/:courseId/modules
         const pathParts = window.location.pathname.split('/');
-        const courseId = pathParts[2]; // /courses/courseId/modules
-        
+        courseId = pathParts[2]; // /courses/courseId/modules
+
         if (!courseId) {
           showError('Course ID tidak ditemukan');
           return;
@@ -236,15 +239,51 @@
           return;
         }
 
+        let isPurchased = false;
+        let myCoursesResult;
+
+        // Check if user has purchased this course
+        const myCoursesResponse = await fetch('/api/courses/my-courses', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (myCoursesResponse.ok) {
+          myCoursesResult = await myCoursesResponse.json();
+          isPurchased = myCoursesResult.data.some(course => course.id === courseId);
+        } else {
+          showError('Terjadi Kesalahan');
+          return;
+        }
+
+        if (!isPurchased) {
+          showError('Anda belum membeli kursus ini');
+          return;
+        }
+
+        progressPercentage = myCoursesResult.data.filter(course => course.id === courseId)[0]?.progress_percentage || 0;
+
+        if (progressPercentage === 100){
+          document.getElementById('cert-button').classList.remove('hidden');
+        }
+
+        loadCourseModules()
+      }
+
+      async function loadCourseModules() {
         try {
           showLoadingModules();
+
+          const params = new URLSearchParams({
+            page: modulesCurrentPage.toString(),
+            limit: modulesPerPage.toString(),
+          });
 
           // Load course detail and modules
           const [courseResponse, modulesResponse] = await Promise.all([
             fetch(`/api/courses/${courseId}`, {
               headers: { 'Authorization': `Bearer ${token}` }
             }),
-            fetch(`/api/courses/${courseId}/modules`, {
+            fetch(`/api/courses/${courseId}/modules?${params}`, {
               headers: { 'Authorization': `Bearer ${token}` }
             })
           ]);
@@ -252,40 +291,21 @@
           if (courseResponse.ok && modulesResponse.ok) {
             const courseResult = await courseResponse.json();
             const modulesResult = await modulesResponse.json();
-            let isPurchased = false;
 
-            // Check if user has purchased this course
-            const myCoursesResponse = await fetch('/api/courses/my-courses', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (myCoursesResponse.ok) {
-              const myCoursesResult = await myCoursesResponse.json();
-              isPurchased = myCoursesResult.data.some(course => course.id === courseId);
-            }
-
-            if (!isPurchased) {
-              showError('Anda belum membeli kursus ini');
-              return;
-            }
-
-            currentCourse = courseResult.data;
             modules = modulesResult.data.sort((a, b) => a.order - b.order);
             // Initialize completed modules from API response
-            completedModules = new Set();
             modules.forEach(module => {
               if (module.is_completed) {
                 completedModules.add(module.id);
               }
             });
+            currentCourse = courseResult.data;
+
             // Update course title
             document.getElementById('course-title').textContent = currentCourse.title;
             // Setup pagination
-            modulesCurrentPage = 1;
-            modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
-            modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
-            displayModulesList();
-            updateModulesPagination();
+            displayModulesList(modules);
+            updateModulesPagination(modulesResult.pagination);
             updateProgress();
           } else if (courseResponse.status === 401 || modulesResponse.status === 401) {
             logout();
@@ -297,7 +317,7 @@
         }
       }
 
-      function displayModulesList() {
+      function displayModulesList(modules) {
         const container = document.getElementById('modules-list');
         const loading = document.getElementById('loading-modules');
         const error = document.getElementById('error-modules');
@@ -305,17 +325,9 @@
         error.classList.add('hidden');
         container.classList.remove('hidden');
 
-        // Pagination logic
-        modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
-        modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
-        if (modulesCurrentPage > modulesTotalPages) modulesCurrentPage = modulesTotalPages;
-        const startIdx = (modulesCurrentPage - 1) * modulesPerPage;
-        const endIdx = Math.min(startIdx + modulesPerPage, modules.length);
-        const paginatedModules = modules.slice(startIdx, endIdx);
-
-        container.innerHTML = paginatedModules.map((module, i) => {
+        container.innerHTML = modules.map((module, i) => {
           // The index for selectModule should be the real index in modules array
-          const realIndex = startIdx + i;
+          const realIndex = i + (modulesCurrentPage - 1) * modulesPerPage;
           const isCompleted = completedModules.has(module.id);
           return `
             <div 
@@ -336,76 +348,93 @@
         }).join('');
       }
 
-      function updateModulesPagination() {
+      function updateModulesPagination(pagination) {
+        modulesTotalPages = pagination.total_pages ?? 1;
+        totalModules = pagination.total_items ?? 0;
         const container = document.getElementById('modules-pagination-container');
-        let html = '';
+        let paginationHTML = '';
         // Previous button
         if (modulesCurrentPage > 1) {
-          html += `<button onclick="goToModulesPage(${modulesCurrentPage - 1})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">←</button>`;
+          paginationHTML += `<button onclick="goToModulesPage(${modulesCurrentPage - 1})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">←</button>`;
         }
         // Page numbers (show up to 5 pages)
         const startPage = Math.max(1, modulesCurrentPage - 2);
         const endPage = Math.min(modulesTotalPages, modulesCurrentPage + 2);
         if (startPage > 1) {
-          html += `<button onclick="goToModulesPage(1)" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">1</button>`;
-          if (startPage > 2) html += `<span class="px-1 text-gray-400">...</span>`;
+          paginationHTML += `
+            <button onclick="goToModulesPage(1)" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">1</button>
+          `;
+          if (startPage > 2) {
+            paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
+          }
         }
+
         for (let i = startPage; i <= endPage; i++) {
           const isActive = i === modulesCurrentPage;
-          html += `<button onclick="goToModulesPage(${i})" class="px-2 py-1 text-xs border rounded ${isActive ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'}">${i}</button>`;
+          paginationHTML += `
+            <button 
+              onclick="goToModulesPage(${i})" 
+              class="px-3 py-2 text-sm border rounded-lg ${isActive ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 hover:bg-gray-50'}"
+            >
+              ${i}
+            </button>
+          `;
         }
+
         if (endPage < modulesTotalPages) {
-          if (endPage < modulesTotalPages - 1) html += `<span class="px-1 text-gray-400">...</span>`;
-          html += `<button onclick="goToModulesPage(${modulesTotalPages})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">${modulesTotalPages}</button>`;
+          if (endPage < modulesTotalPages - 1) {
+            paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
+          }
+          paginationHTML += `
+            <button onclick="goToModulesPage(${modulesTotalPages})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">${modulesTotalPages}</button>
+          `;
         }
+
         // Next button
         if (modulesCurrentPage < modulesTotalPages) {
-          html += `<button onclick="goToModulesPage(${modulesCurrentPage + 1})" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">→</button>`;
+          paginationHTML += `
+            <button onclick="goToModulesPage(${modulesCurrentPage + 1})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+              →
+            </button>
+          `;
         }
-        container.innerHTML = html;
+
+        container.innerHTML = paginationHTML;
       }
 
       function goToModulesPage(page) {
         modulesCurrentPage = page;
-        displayModulesList();
-        updateModulesPagination();
+        loadCourseModules();
       }
 
       function changeModulesPerPage() {
         modulesPerPage = parseInt(document.getElementById('modules-per-page-select').value) || 10;
-        modulesTotalPages = Math.max(1, Math.ceil(modules.length / modulesPerPage));
         modulesCurrentPage = 1;
-        displayModulesList();
-        updateModulesPagination();
+        loadCourseModules();
       }
 
       function showError(text) {
         showErrorModules()
         document.getElementById('no-module-selected').classList.add('hidden');
         document.getElementById('module-main-error').classList.remove('hidden');
-        if (text){
+        if (text) {
           document.querySelector('#module-main-error .text-gray-600').textContent = text;
         }
       }
 
-      function selectModule(index) {
+      async function selectModule(index) {
+        const realPage = Math.ceil((index + 1) / modulesPerPage);
+        modulesCurrentPage = realPage;
         currentModuleIndex = index;
-        // If the selected module is not on the current page, change page
-        const startIdx = (modulesCurrentPage - 1) * modulesPerPage;
-        const endIdx = startIdx + modulesPerPage;
-        if (index < startIdx || index >= endIdx) {
-          modulesCurrentPage = Math.floor(index / modulesPerPage) + 1;
-          displayModulesList();
-          updateModulesPagination();
-        } else {
-          displayModulesList();
-        }
+
+        await loadCourseModules();
+        // currentModuleIndex = index % modulesPerPage;
         showModuleContent();
         updateNavigationButtons();
       }
 
       function showModuleContent() {
-        const module = modules[currentModuleIndex];
+        const module = modules[currentModuleIndex % modules.length];
         const noModuleSelected = document.getElementById('no-module-selected');
         const moduleContent = document.getElementById('module-content');
 
@@ -422,14 +451,16 @@
         if (isCompleted) {
           completeBtn.textContent = 'Selesai ✅';
           completeBtn.className = 'px-6 py-3 bg-green-600 text-white rounded-xl font-semibold transition-colors';
+          completeBtn.disabled = true;
         } else {
           completeBtn.textContent = 'Tandai Selesai';
           completeBtn.className = 'px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors';
+          completeBtn.disabled = false;
         }
 
         // Show appropriate content type
         hideAllContent();
-        
+
         if (module.pdf_content) {
           showPdfContent(module.pdf_content);
         } else if (module.video_content) {
@@ -448,7 +479,7 @@
       function showPdfContent(pdfUrl) {
         const pdfViewer = document.getElementById('pdf-viewer');
         const pdfFrame = document.getElementById('pdf-frame');
-        
+
         pdfFrame.src = pdfUrl;
         pdfViewer.classList.remove('hidden');
       }
@@ -456,7 +487,7 @@
       function showVideoContent(videoUrl) {
         const videoPlayer = document.getElementById('video-player');
         const videoElement = document.getElementById('video-element');
-        
+
         videoElement.src = videoUrl;
         videoPlayer.classList.remove('hidden');
       }
@@ -464,7 +495,7 @@
       function showTextContent(content) {
         const textContent = document.getElementById('text-content');
         const textBody = document.getElementById('text-content-body');
-        
+
         textBody.innerHTML = content.replace(/\n/g, '<br>');
         textContent.classList.remove('hidden');
       }
@@ -474,23 +505,23 @@
         const nextBtn = document.getElementById('next-module-btn');
 
         prevBtn.style.display = currentModuleIndex > 0 ? 'flex' : 'none';
-        nextBtn.style.display = currentModuleIndex < modules.length - 1 ? 'flex' : 'none';
+        nextBtn.style.display = currentModuleIndex < totalModules - 1 ? 'flex' : 'none';
       }
 
       function navigateModule(direction) {
         if (direction === 'prev' && currentModuleIndex > 0) {
           selectModule(currentModuleIndex - 1);
-        } else if (direction === 'next' && currentModuleIndex < modules.length - 1) {
+        } else if (direction === 'next' && currentModuleIndex < totalModules - 1) {
           selectModule(currentModuleIndex + 1);
         }
       }
 
       async function toggleModuleCompletion() {
-        const module = modules[currentModuleIndex];
+        const module = modules[currentModuleIndex % modules.length];
         const isCompleted = completedModules.has(module.id);
-        
+
         const token = localStorage.getItem('token');
-        
+
         try {
           const response = await fetch(`/api/modules/${module.id}/complete`, {
             method: 'PATCH',
@@ -501,22 +532,16 @@
           });
 
           if (response.ok) {
-            // Since it's a PATCH endpoint, it toggles the completion status
-            if (isCompleted) {
-              completedModules.delete(module.id);
-            } else {
-              completedModules.add(module.id);
-            }
-            
-            // Update the module object as well for consistency
-            module.is_completed = !isCompleted;
-            
-            showModuleContent(); // Refresh button state
-            displayModulesList(); // Refresh module list
-            updateProgress();
-            
-            // Check if all modules are completed
-            if (completedModules.size === modules.length) {
+            completedModules.add(module.id);
+
+            showModuleContent();
+            await loadMyCourses();
+            await loadCourseModules();
+
+            console.log("completedModules:", completedModules.size);
+            console.log("totalModules:", totalModules);
+
+            if (progressPercentage == 100) {
               setTimeout(() => {
                 showCertificateModal();
               }, 1000);
@@ -531,10 +556,10 @@
       }
 
       function updateProgress() {
-        const progress = modules.length > 0 ? (completedModules.size / modules.length) * 100 : 0;
+        const progress = progressPercentage;
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
-        
+
         progressBar.style.width = `${progress}%`;
         progressText.textContent = `${Math.round(progress)}%`;
       }
@@ -550,26 +575,26 @@
       function downloadCertificate() {
         // Implementation for certificate download
         const token = localStorage.getItem('token');
-        
+
         fetch(`/api/courses/${currentCourse.id}/certificate`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(response => response.blob())
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `Certificate-${currentCourse.title.replace(/\s+/g, '-')}.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-          console.error('Error downloading certificate:', error);
-          alert('Gagal mengunduh sertifikat');
-        });
-        
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Certificate-${currentCourse.title.replace(/\s+/g, '-')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => {
+            console.error('Error downloading certificate:', error);
+            alert('Gagal mengunduh sertifikat');
+          });
+
         closeCertificateModal();
       }
 
@@ -595,7 +620,8 @@
       }
 
       // Load course modules when page loads
-      document.addEventListener('DOMContentLoaded', loadCourseModules);
+      document.addEventListener('DOMContentLoaded', loadMyCourses);
+      // document.addEventListener('DOMContentLoaded', loadCourseModules);
 
       // Check if already logged in
       const token = localStorage.getItem('token');
@@ -603,5 +629,6 @@
         window.location.href = '/login';
       }
     </script>
-  </body>
+</body>
+
 </html>

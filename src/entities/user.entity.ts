@@ -30,9 +30,7 @@ export class User {
   @Column()
   last_name: string;
 
-  @Column({
-    default: 0,
-  })
+  @Column('decimal', { precision: 10, scale: 2 })
   balance: number;
 
   @Column({ nullable: true })

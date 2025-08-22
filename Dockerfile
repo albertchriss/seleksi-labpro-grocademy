@@ -1,43 +1,31 @@
-# Multi-stage Dockerfile
+# ---- Base Stage ----
 FROM node:20-alpine AS base
+WORKDIR /usr/src/app
 
-# Install dependencies only when needed
-FROM base AS deps
-WORKDIR /app
+# ---- Dependencies Stage ----
+FROM base AS dependencies
+# Install only production dependencies
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-# Copy package files
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Rebuild the source code only when needed
+# ---- Build Stage ----
 FROM base AS builder
-WORKDIR /app
-COPY package*.json ./
+# Install all dependencies (including dev)
+COPY package.json package-lock.json ./
 RUN npm ci
-
+# Copy source code and build the application
 COPY . .
 RUN npm run build
 
-# Production image, copy all the files and run nest
+# ---- Runner Stage (Final Image) ----
 FROM base AS runner
-WORKDIR /app
+# Copy production dependencies from the 'dependencies' stage
+COPY --from=dependencies /usr/src/app/node_modules ./node_modules
+# Copy the built application from the 'builder' stage
+COPY --from=builder /usr/src/app/dist ./dist
 
-ENV NODE_ENV=production
-
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
-
-# Copy production dependencies
-COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
-# Copy built application
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
-
-USER nestjs
-
+# The port your app listens on inside the container
 EXPOSE 3000
 
-ENV PORT=3000
-
-CMD ["npm", "run", "start:prod"]
+# The command to start the application
+CMD [ "node", "dist/main" ]
