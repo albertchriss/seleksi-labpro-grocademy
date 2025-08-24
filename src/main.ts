@@ -7,9 +7,11 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { ResponseInterceptor } from './auth/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './auth/filters/http-exception.filter';
+import { NotFoundExceptionFilter } from './auth/filters/not-found.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -23,7 +25,11 @@ async function bootstrap() {
   app.setViewEngine('ejs');
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://labpro-ohl-2025-fe.hmif.dev'],
+    origin: [
+      'http://localhost:3000',
+      configService.get<string>('FE_ADMIN_URL'),
+      configService.get<string>('BASE_URL'),
+    ],
     credentials: true,
   });
   // Apply response interceptor globally
@@ -31,6 +37,9 @@ async function bootstrap() {
 
   // Apply exception filter globally
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Apply not found filter globally
+  app.useGlobalFilters(new NotFoundExceptionFilter());
 
   // Swagger
   const config = new DocumentBuilder()
@@ -43,7 +52,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const configService = app.get(ConfigService);
   await app.listen(configService.get<number>('PORT') ?? 3000);
 }
 bootstrap().catch((err) => console.error(err));

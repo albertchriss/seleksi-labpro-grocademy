@@ -8,7 +8,6 @@ import { createDatabaseConfig } from './database/database.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
 import { TransactionModule } from './transaction/transaction.module';
 import { ModulesModule } from './modules/modules.module';
 import { MinioModule } from './minio/minio.module';
@@ -34,15 +33,6 @@ import { PdfModule } from './pdf/pdf.module';
     AuthModule,
 
     PassportModule,
-
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '60s' },
-      }),
-      inject: [ConfigService],
-    }),
 
     TransactionModule,
 

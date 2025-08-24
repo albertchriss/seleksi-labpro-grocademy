@@ -158,7 +158,8 @@ export class UsersService {
     }
 
     // Update balance
-    const newBalance = user.balance + updateBalanceDto.increment;
+    const newBalance =
+      Number(user.balance) + Number(updateBalanceDto.increment);
     await this.userRepository.update(id, { balance: newBalance });
 
     return {
@@ -190,6 +191,7 @@ export class UsersService {
       first_name: user.first_name,
       last_name: user.last_name,
       balance: user.balance,
+      profile_pic: user.profile_pic,
       courses_purchased: coursesPurchased,
     };
   }

@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grocademy - Kursus</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .gradient-primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      }
-      .gradient-gold {
-        background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
-      }
-      .sidebar-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-      .sidebar-item.active {
-        background-color: #ffd700;
-        color: #1d4ed8;
-      }
-    </style>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex">
-    <%- include('partials/sidebar', { activeMenu: 'courses' }) %>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grocademy - Kursus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .gradient-gold {
+      background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+    }
+
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-item.active {
+      background-color: #ffd700;
+      color: #1d4ed8;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex">
+  <%- include('partials/sidebar', { activeMenu: 'courses' }) %>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
@@ -40,27 +45,21 @@
       <div class="bg-white border-b border-gray-200 px-8 py-4">
         <div class="flex items-center gap-4">
           <div class="flex-1 relative">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Cari berdasarkan judul, instruktur, atau topik"
-              class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <input type="text" id="search-input" placeholder="Cari berdasarkan judul, instruktur, atau topik"
+              class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             <div class="absolute left-4 top-1/2 transform -translate-y-1/2">
               <span class="text-gray-400">🔍</span>
             </div>
-            <button 
-              onclick="searchCourses()"
-              class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-600 transition-colors"
-            >
-              Cari
+            <button onclick="searchCourses()"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-800 transition-colors">
+                Cari
             </button>
           </div>
         </div>
       </div>
 
       <!-- Course Content -->
-      <div class="flex-1 p-8">
+      <div id="course-container" class="flex-1 p-8">
         <div id="loading" class="text-center py-12">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p class="mt-2 text-gray-600">Memuat kursus...</p>
@@ -75,42 +74,38 @@
 
         <div id="courses-container" class="hidden">
           <%- include('partials/course-card') %>
-          <!-- Course Grid -->
-          <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-            <!-- Course cards will be inserted here -->
-          </div>
-
-          <div class="flex justify-between mb-3">
-            <div class="gap-2 flex items-center">
-              Menampilkan 
-              <select 
-                id="per-page-select" 
-                onchange="changePerPage()"
-                class="border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-              </select>
-              Kursus
+            <!-- Course Grid -->
+            <div id="courses-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+              <!-- Course cards will be inserted here -->
             </div>
-            <p id="pagination-info">
-            </p>
-          </div>
-          <!-- Pagination -->
-          <div id="pagination-container" class="flex justify-center items-center gap-2">
-            <!-- Pagination will be inserted here -->
-          </div>
-        </div>
-        </div>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="hidden text-center py-12">
-          <div class="text-6xl mb-4">📚</div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada kursus tersedia</h3>
-          <p class="text-gray-600 mb-6">Saat ini belum ada kursus yang dapat ditampilkan.</p>
+            <div class="flex justify-between mb-3">
+              <div class="gap-2 flex items-center">
+                <label for="per-page-select" class="text-sm">Jumlah kursus per halaman</label>
+                <select id="per-page-select" onchange="changePerPage()"
+                  class="border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select>
+              </div>
+              <p id="pagination-info">
+              </p>
+            </div>
+            <!-- Pagination -->
+            <div id="pagination-container" class="flex justify-center items-center gap-2">
+              <!-- Pagination will be inserted here -->
+            </div>
         </div>
       </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden text-center w-full h-full flex flex-col items-center justify-center">
+        <div class="text-6xl mb-4">📚</div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum ada kursus tersedia</h3>
+        <p class="text-gray-600 mb-6">Saat ini belum ada kursus yang dapat ditampilkan.</p>
+      </div>
+    </div>
     </div>
 
     <script>
@@ -120,9 +115,37 @@
       let totalPages = 1;
       let totalItems = 0;
 
+
+      // Long polling
+      async function subscribeToUpdates() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+          const response = await fetch('/api/courses/subscribe', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            await loadCourses(); // Memuat ulang data
+          } else if (response.status === 401) {
+            logout();
+            return;
+          }
+        } catch (error) {
+          console.error('Long polling error:', error);
+          setTimeout(subscribeToUpdates, 5000);
+          return;
+        }
+
+        subscribeToUpdates();
+      }
+
       async function loadCourses() {
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
           window.location.href = '/login';
           return;
@@ -130,7 +153,7 @@
 
         try {
           showLoading();
-          
+
           const params = new URLSearchParams({
             page: currentPage.toString(),
             limit: perPage.toString(),
@@ -165,16 +188,19 @@
         const emptyState = document.getElementById('empty-state');
         const loading = document.getElementById('loading');
         const errorContainer = document.getElementById('error-container');
+        const mainCourseContainer = document.getElementById('course-container');
 
         loading.classList.add('hidden');
         errorContainer.classList.add('hidden');
 
         if (courses.length === 0) {
+          mainCourseContainer.classList.add('hidden');
           coursesContainer.classList.add('hidden');
           emptyState.classList.remove('hidden');
           return;
         }
 
+        mainCourseContainer.classList.remove('hidden');
         emptyState.classList.add('hidden');
         coursesContainer.classList.remove('hidden');
 
@@ -190,7 +216,7 @@
           clone.querySelector('.course-anchor').href = `/courses/${course.id}`;
           clone.querySelector('.course-button').classList.add('hidden');
 
-          if (course.thumbnail_image){
+          if (course.thumbnail_image) {
             clone.querySelector('.course-image').src = course.thumbnail_image;
             clone.querySelector('.course-image').classList.remove('hidden');
             clone.querySelector('.image-placeholder').classList.add('hidden');
@@ -206,10 +232,10 @@
         const container = document.getElementById('pagination-container');
         const info = document.getElementById('pagination-info');
 
-        info.textContent = `Menampilkan ${(currentPage-1) * perPage + 1} hingga ${Math.min(currentPage * perPage, totalItems)} dari ${totalItems} entri`;
+        info.textContent = `Menampilkan ${(currentPage - 1) * perPage + 1} hingga ${Math.min(currentPage * perPage, totalItems)} dari ${totalItems} entri`;
 
         let paginationHTML = '';
-        
+
         // Previous button
         if (currentPage > 1) {
           paginationHTML += `
@@ -218,11 +244,11 @@
             </button>
           `;
         }
-        
+
         // Page numbers
         const startPage = Math.max(1, currentPage - 2);
         const endPage = Math.min(totalPages, currentPage + 2);
-        
+
         if (startPage > 1) {
           paginationHTML += `
             <button onclick="goToPage(1)" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">1</button>
@@ -231,7 +257,7 @@
             paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
           }
         }
-        
+
         for (let i = startPage; i <= endPage; i++) {
           const isActive = i === currentPage;
           paginationHTML += `
@@ -243,7 +269,7 @@
             </button>
           `;
         }
-        
+
         if (endPage < totalPages) {
           if (endPage < totalPages - 1) {
             paginationHTML += `<span class="px-2 text-gray-500">...</span>`;
@@ -252,7 +278,7 @@
             <button onclick="goToPage(${totalPages})" class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">${totalPages}</button>
           `;
         }
-        
+
         // Next button
         if (currentPage < totalPages) {
           paginationHTML += `
@@ -261,7 +287,7 @@
             </button>
           `;
         }
-        
+
         container.innerHTML = paginationHTML;
       }
 
@@ -306,14 +332,19 @@
       }
 
       // Search on Enter key
-      document.getElementById('search-input').addEventListener('keypress', function(e) {
+      document.getElementById('search-input').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
           searchCourses();
         }
       });
 
       // Load courses when page loads
-      document.addEventListener('DOMContentLoaded', loadCourses);
+      document.addEventListener('DOMContentLoaded', async () => {
+        await loadCourses();
+
+        // listen for long polling
+        subscribeToUpdates();
+      });
 
       // Check if already logged in
       const token = localStorage.getItem('token');
@@ -321,5 +352,6 @@
         window.location.href = '/login';
       }
     </script>
-  </body>
+</body>
+
 </html>

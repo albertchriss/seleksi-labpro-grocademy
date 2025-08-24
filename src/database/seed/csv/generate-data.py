@@ -8,7 +8,7 @@ fake = Faker()
 
 # --- Configuration ---
 NUM_USERS = 20
-NUM_COURSES = 50
+NUM_COURSES = 20
 MODULES_PER_COURSE = 20
 TRANSACTIONS_TO_GENERATE = 30
 
@@ -40,7 +40,7 @@ for i in range(NUM_USERS):
         'userId': user['id'],
         'email': email,
         'username': username,
-        'password': 'password',
+        'password': 'password123',
         'role': 'user'
     }
     accounts.append(account)

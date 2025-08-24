@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginResponseDto } from './dto/login.dto';
 import { RegisterDto, RegisterResponseDto } from './dto/register.dto';
 import { AuthenticatedRequest } from './interfaces/auth.interface';
+import { Role } from 'src/entities/account.entity';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(identifier: string, pass: string): Promise<User | null> {
+  async validateUser(
+    identifier: string,
+    pass: string,
+    requestOrigin: string,
+  ): Promise<User | null> {
     const [account, user] = await Promise.all([
       this.usersService.findAccountByIdentifier(identifier),
       this.usersService.findUserByIdentifier(identifier),
@@ -34,6 +39,11 @@ export class AuthService {
     }
 
     if (!(await bcrypt.compare(pass, account.password))) {
+      return null;
+    }
+
+    const adminFeUrl = 'https://labpro-ohl-2025-fe.hmif.dev';
+    if (account.role === Role.USER && requestOrigin === adminFeUrl) {
       return null;
     }
 

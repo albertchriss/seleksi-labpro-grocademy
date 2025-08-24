@@ -21,6 +21,7 @@ export const createDatabaseConfig = (
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/migrations/*{.ts,.js}'],
     synchronize: getConfig('NODE_ENV') === 'development',
-    logging: getConfig('NODE_ENV') === 'development',
+    // logging: getConfig('NODE_ENV') === 'development',
+    logging: false,
   };
 };

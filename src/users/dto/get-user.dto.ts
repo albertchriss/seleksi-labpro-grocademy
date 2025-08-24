@@ -19,6 +19,9 @@ export class GetUserResponseDto {
   @ApiProperty({ description: 'User balance' })
   balance: number;
 
+  @ApiProperty({ description: 'Profile picture URL', nullable: true })
+  profile_pic?: string | null;
+
   @ApiProperty({ description: 'Number of courses purchased' })
   courses_purchased: number;
 }
