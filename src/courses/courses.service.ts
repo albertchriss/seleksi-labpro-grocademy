@@ -540,6 +540,6 @@ export class CoursesService {
       }),
     };
 
-    return this.pdfService.generatePdfFromHtml('certif-template.ejs', data);
+    return this.pdfService.generateCertificatePdf(data);
   }
 }

@@ -1,5 +1,5 @@
 # ---- Base Stage ----
-FROM node:20-slim AS base
+FROM node:20-alpine AS base
 WORKDIR /usr/src/app
 
 # ---- Dependencies Stage ----
@@ -15,21 +15,7 @@ COPY . .
 RUN npm run build
 
 # ---- Runner Stage (Final Image) ----
-FROM node:20-slim AS runner
-
-# Install wkhtmltopdf and fonts
-RUN apt-get update && apt-get install -y \
-    wkhtmltopdf \
-    fontconfig \
-    libxrender1 \
-    libxext6 \
-    libjpeg62-turbo \
-    xfonts-base \
-    xfonts-75dpi \
- && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /usr/src/app
-
+FROM base AS runner
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/views ./views
@@ -37,4 +23,4 @@ COPY --from=builder /usr/src/app/public ./public
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD [ "node", "dist/main" ]
