@@ -21,7 +21,6 @@ export class PdfService {
 
   async generateCertificatePdf(data: CertificateData): Promise<Buffer> {
     try {
-      // Define paths to your font files
       const fontPaths = {
         montserratRegular: path.join(
           process.cwd(),
@@ -55,7 +54,6 @@ export class PdfService {
         ),
       };
 
-      // Check if font files exist
       for (const key in fontPaths) {
         if (!fs.existsSync(fontPaths[key])) {
           this.logger.error(`Font file not found at: ${fontPaths[key]}`);
@@ -79,7 +77,6 @@ export class PdfService {
           reject(err instanceof Error ? err : new Error(String(err))),
         );
 
-        // --- Register Custom Fonts ---
         doc.registerFont('Montserrat-Regular', fontPaths.montserratRegular);
         doc.registerFont('Montserrat-Medium', fontPaths.montserratMedium);
         doc.registerFont('Montserrat-SemiBold', fontPaths.montserratSemiBold);
@@ -91,10 +88,8 @@ export class PdfService {
         const pageWidth = doc.page.width;
         const pageHeight = doc.page.height;
 
-        // 1. Draw the light grey page background
         doc.rect(0, 0, pageWidth, pageHeight).fill('#f1f5f9');
 
-        // 2. Define certificate dimensions and draw the container
         const boxMargin = 50;
         const boxWidth = pageWidth - boxMargin * 2;
         const boxHeight = pageHeight - boxMargin * 2;
@@ -103,7 +98,6 @@ export class PdfService {
           .roundedRect(boxMargin, boxMargin, boxWidth, boxHeight, 24)
           .fill('white');
 
-        // 3. Draw the blue border
         doc
           .roundedRect(boxMargin, boxMargin, boxWidth, boxHeight, 24)
           .lineWidth(8)
@@ -114,7 +108,6 @@ export class PdfService {
         const contentX = boxMargin + 50;
         let currentY = 120; // Starting Y position for content
 
-        // 4. Main Title
         doc
           .font('Playfair-Bold')
           .fontSize(42)
@@ -125,7 +118,6 @@ export class PdfService {
           });
         currentY += 60;
 
-        // 5. Subtitle
         doc
           .font('Montserrat-Medium')
           .fontSize(16)
@@ -138,7 +130,6 @@ export class PdfService {
           );
         currentY += 40;
 
-        // 6. Username
         doc
           .font('Montserrat-Bold')
           .fontSize(28)
@@ -149,7 +140,6 @@ export class PdfService {
           });
         currentY += 50;
 
-        // 7. Completion Text
         doc
           .font('Montserrat-Regular')
           .fontSize(14)
@@ -160,7 +150,6 @@ export class PdfService {
           });
         currentY += 25;
 
-        // 8. Course Title
         doc
           .font('Playfair-Bold')
           .fontSize(22)
@@ -171,7 +160,6 @@ export class PdfService {
           });
         currentY += 35;
 
-        // 9. Instructor Text
         const instructorText = `An intensive course taught by ${data.instructor}.`;
         doc
           .font('Montserrat-Regular')
@@ -189,14 +177,12 @@ export class PdfService {
         const leftSignatureX = boxMargin + 80;
         const rightSignatureX = pageWidth - boxMargin - 80 - signatureWidth;
 
-        // 10. Separator Line
         doc
           .moveTo(boxMargin + 60, footerY - 20)
           .lineTo(pageWidth - boxMargin - 60, footerY - 20)
           .lineWidth(2)
           .stroke('#e2e8f0');
 
-        // 11. Left Signature Area (Instructor)
         doc
           .font('Playfair-Bold')
           .fontSize(16)
@@ -219,7 +205,6 @@ export class PdfService {
             align: 'center',
           });
 
-        // 12. Right Signature Area (Date)
         doc
           .font('Playfair-Bold')
           .fontSize(16)
@@ -242,7 +227,6 @@ export class PdfService {
             align: 'center',
           });
 
-        // --- Finalize the PDF ---
         doc.end();
       });
 
