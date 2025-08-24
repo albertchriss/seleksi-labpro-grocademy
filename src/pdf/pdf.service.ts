@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
-import puppeteer, { Browser } from 'puppeteer'; // Import Browser type
+import * as wkhtmltopdf from 'wkhtmltopdf';
 import * as ejs from 'ejs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -18,48 +18,42 @@ export class PdfService {
   ): Promise<Buffer> {
     const templatePath = path.join(
       process.cwd(),
-      'views',
+      'views', // Pastikan path ini benar setelah build
       'templates',
       templateName,
     );
     const templateString = await fs.readFile(templatePath, 'utf-8');
     const html = ejs.render(templateString, data);
 
-    let browser: Browser | null = null;
-
     try {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      // wkhtmltopdf menghasilkan Buffer secara langsung
+      const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
+        const stream = wkhtmltopdf(html, {
+          pageSize: 'A4',
+          orientation: 'Landscape',
+          disableSmartShrinking: true,
+          zoom: 1,
+          marginLeft: '0mm',
+          marginRight: '0mm',
+          marginTop: '0mm',
+          marginBottom: '0mm',
+        });
 
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        landscape: true, // Set to landscape orientation
-        printBackground: true,
-        margin: {
-          top: '0px',
-          right: '0px',
-          bottom: '0px',
-          left: '0px',
-        },
+        const chunks: Buffer[] = [];
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', (err) => reject(err));
       });
-      return Buffer.from(pdfBuffer);
+
+      return pdfBuffer;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(
-          `Error generating PDF: ${error.message}`,
+          `Error generating PDF with wkhtmltopdf: ${error.message}`,
           error.stack,
         );
       }
       throw new InternalServerErrorException('Could not generate PDF');
-    } finally {
-      // Ensure the browser is closed even if an error occurred
-      if (browser) {
-        await browser.close();
-      }
     }
   }
 }

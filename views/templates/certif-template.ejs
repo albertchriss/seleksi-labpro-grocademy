@@ -3,72 +3,155 @@
   <head>
     <meta charset="UTF-8" />
     <title>Certificate of Completion</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap"
       rel="stylesheet"
     />
     <style>
+      /* --- Global Styles --- */
+      /* ADDED THIS RULE TO FIX PAGE SIZING */
+      html {
+        height: 100%;
+      }
       body {
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Montserrat', Arial, sans-serif;
+        background-color: #f1f5f9;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%; /* CHANGED FROM min-height: 100vh */
+        box-sizing: border-box;
       }
       .font-playfair {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Playfair Display', 'Times New Roman', serif;
+      }
+
+      /* --- Certificate Container --- */
+      .certificate-container {
+        background-color: white;
+        border: 8px solid #2563eb;
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 3.5rem 3rem;
+        max-width: 800px; /* Using pixels for better PDF control */
+        width: 100%;
+        text-align: center;
+        position: relative;
+        box-sizing: border-box;
+      }
+
+      /* --- Content Sections --- */
+      .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 3rem;
+        border-top: 2px solid #e2e8f0;
+        padding-top: 2rem;
+      }
+
+      /* --- Text & Element Styles --- */
+      .trophy {
+        font-size: 3.75rem;
+        margin-bottom: 0.5rem;
+        color: #fbbf24;
+      }
+      .main-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1d4ed8;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.025em;
+      }
+      .subtitle {
+        font-size: 1.125rem;
+        color: #64748b;
+        margin-bottom: 2rem;
+        font-weight: 500;
+      }
+      .username {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+      }
+      .completion-text {
+        font-size: 1rem;
+        color: #475569;
+        margin-bottom: 0.5rem;
+      }
+      .course-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2563eb;
+        margin-bottom: 0.5rem;
+      }
+      .instructor-text {
+        font-size: 1rem;
+        color: #334155;
+        margin-bottom: 1.5rem;
+      }
+      .instructor-text span {
+        font-weight: 600;
+      }
+
+      /* --- Footer Signature Area --- */
+      .signature-area {
+        width: 40%;
+        text-align: center;
+      }
+      .signature-name {
+        font-size: 1.125rem;
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        margin-top: 0.5rem;
+      }
+      .signature-line {
+        border-bottom: 1px solid #94a3b8;
+        width: 80%;
+        margin: 0 auto 0.5rem auto;
+      }
+      .signature-title {
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.025em;
       }
     </style>
   </head>
-  <body class="bg-slate-100 min-h-screen flex items-center justify-center">
-    <div
-      class="bg-white border-8 border-blue-600 rounded-3xl shadow-2xl px-12 py-14 max-w-2xl w-full text-center relative"
-    >
-      <div class="flex flex-col items-center mb-8">
-        <div class="text-6xl mb-2" style="color: #fbbf24">🏆</div>
-        <div
-          class="font-playfair text-4xl md:text-5xl font-bold text-blue-700 mb-2 tracking-wide"
-        >
-          Certificate of Completion
-        </div>
-        <div class="text-lg text-slate-500 mb-8 font-medium">
-          This certificate is proudly presented to
-        </div>
-        <div class="text-3xl font-bold text-slate-800 mb-2">
-          <%= username %>
-        </div>
-        <div class="text-base text-slate-600 mb-2">
-          for successfully completing the course
-        </div>
-        <div class="font-playfair text-2xl font-bold text-blue-600 mb-2">
-          <%= courseTitle %>
-        </div>
-        <div class="text-base text-slate-700 mb-6">
-          An intensive course taught by
-          <span class="font-semibold"><%= instructor %></span>.
+  <body>
+    <div class="certificate-container">
+      <div class="content">
+        <div class="trophy">🏆</div>
+        <div class="font-playfair main-title">Certificate of Completion</div>
+        <div class="subtitle">This certificate is proudly presented to</div>
+        <div class="username"><%= username %></div>
+        <div class="completion-text">for successfully completing the course</div>
+        <div class="font-playfair course-title"><%= courseTitle %></div>
+        <div class="instructor-text">
+          An intensive course taught by <span><%= instructor %></span>.
         </div>
       </div>
-      <div
-        class="flex justify-between items-end mt-12 border-t-2 border-slate-200 pt-8"
-      >
-        <div class="w-2/5 text-center">
-          <div
-            class="font-playfair text-lg text-slate-800 font-semibold mb-4 mt-2"
-          >
-            <%= instructor %>
-          </div>
-          <div class="border-b border-slate-400 w-4/5 mx-auto mb-2"></div>
-          <div class="text-slate-500 text-sm font-medium tracking-wide">
-            Instructor
-          </div>
+      <div class="footer">
+        <div class="signature-area">
+          <div class="font-playfair signature-name"><%= instructor %></div>
+          <div class="signature-line"></div>
+          <div class="signature-title">Instructor</div>
         </div>
-        <div class="w-2/5 text-center">
-          <div
-            class="font-playfair text-lg text-slate-800 font-semibold mb-4 mt-2"
-          >
-            <%= completionDate %>
-          </div>
-          <div class="border-b border-slate-400 w-4/5 mx-auto mb-2"></div>
-          <div class="text-slate-500 text-sm font-medium tracking-wide">
-            Date of Completion
-          </div>
+        <div class="signature-area">
+          <div class="font-playfair signature-name"><%= completionDate %></div>
+          <div class="signature-line"></div>
+          <div class="signature-title">Date of Completion</div>
         </div>
       </div>
     </div>
