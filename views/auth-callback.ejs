@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Authenticating...</title>
+  </head>
+  <body>
+    <div
+      class="min-h-screen flex flex-col justify-center items-center text-center p-4"
+    >
+      <div
+        class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+      ></div>
+
+      <h1 class="text-2xl font-bold text-gray-800 mt-6">
+        Securely logging you in...
+      </h1>
+      <p class="text-gray-600 mt-2">
+        Please wait, you will be redirected shortly.
+      </p>
+    </div>
+
+    <script>
+      const token = '<%= token %>';
+
+      if (token) {
+        localStorage.setItem('token', token);
+
+        window.location.href = '/courses';
+      } else {
+        window.location.href = '/login';
+      }
+    </script>
+  </body>
+</html>

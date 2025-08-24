@@ -70,6 +70,13 @@ export class CoursesController {
     return this.coursesService.findPaginated(q, page, limit);
   }
 
+  @Get('subscribe')
+  @Auth()
+  async subscribe() {
+    await this.coursesService.waitForUpdate();
+    return { message: 'Data has been updated.' };
+  }
+
   @Auth()
   @Get('my-courses')
   @ApiOperation({ summary: 'Get my courses' })

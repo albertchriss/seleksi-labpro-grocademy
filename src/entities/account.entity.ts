@@ -23,10 +23,10 @@ export class Account {
   email: string;
 
   @Unique(['username'])
-  @Column()
-  username: string;
+  @Column({ nullable: true })
+  username: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column({ default: Role.USER })

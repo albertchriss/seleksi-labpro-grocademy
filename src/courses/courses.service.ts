@@ -26,9 +26,25 @@ import { EditCourseResponseDetailDto } from './dto/edit-course-response.dto';
 import { MediaService } from 'src/media/media.service';
 import { Media } from 'src/entities/media.entity';
 import { PdfService } from 'src/pdf/pdf.service';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class CoursesService {
+  private coursesUpdate = new Subject<void>();
+
+  async waitForUpdate() {
+    return new Promise<void>((resolve) => {
+      const subscription = this.coursesUpdate.subscribe(() => {
+        subscription.unsubscribe();
+        resolve();
+      });
+    });
+  }
+
+  notifyCoursesHaveChanged() {
+    this.coursesUpdate.next();
+  }
+
   constructor(
     @InjectRepository(Course)
     private courseRepository: Repository<Course>,
@@ -101,10 +117,16 @@ export class CoursesService {
 
     const course = this.courseRepository.create({
       ...createCourseDto,
-      thumbnail_image: media?.id ?? null,
+      thumbnail_image: media
+        ? this.mediaService.transformToUrl(media.id)
+        : null,
     });
 
-    return await this.courseRepository.save(course);
+    const newCourse = await this.courseRepository.save(course);
+
+    this.notifyCoursesHaveChanged();
+
+    return newCourse;
   }
 
   async findOne(id: string): Promise<CourseDetailResponseDto> {
@@ -167,6 +189,8 @@ export class CoursesService {
     });
     await this.courseRepository.save(course);
 
+    this.notifyCoursesHaveChanged();
+
     return {
       id: course.id,
       title: course.title,
@@ -198,7 +222,10 @@ export class CoursesService {
     }
 
     // Proceed with the purchase logic
-    if (user.balance < course.price) {
+    const userBalance = Number(user.balance);
+    const coursePrice = Number(course.price);
+
+    if (userBalance < coursePrice) {
       throw new BadRequestException('Insufficient balance to buy this course');
     }
 
@@ -208,7 +235,8 @@ export class CoursesService {
       throw new BadRequestException('User has already purchased this course');
     }
 
-    user.balance -= course.price;
+    const newBalance = userBalance - coursePrice;
+    user.balance = newBalance;
     await this.userService.editUser(user.id, user);
 
     const transaction = await this.transactionService.createTransaction(

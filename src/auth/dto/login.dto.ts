@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
+import { IsString, Matches, MinLength } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({
@@ -13,10 +13,13 @@ export class LoginDto {
   @ApiProperty({
     description: 'User password',
     example: 'password123',
-    minLength: 6,
+    minLength: 8,
   })
   @IsString()
-  @MinLength(6)
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @Matches(/^(?=.*[a-zA-Z])(?=.*\d)/, {
+    message: 'Password must contain at least one letter and one number',
+  })
   password: string;
 }
 

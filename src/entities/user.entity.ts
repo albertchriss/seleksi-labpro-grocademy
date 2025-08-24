@@ -20,7 +20,7 @@ export class User {
   @Unique(['email'])
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Unique(['username'])
   username: string;
 
@@ -30,7 +30,7 @@ export class User {
   @Column()
   last_name: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   balance: number;
 
   @Column({ nullable: true })

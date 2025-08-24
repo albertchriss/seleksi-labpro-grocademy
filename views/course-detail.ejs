@@ -169,7 +169,7 @@
             const userResult = await userResponse.json();
             
             currentCourse = courseResult.data;
-            userBalance = userResult.data.balance;
+            userBalance = Number(userResult.data.balance);
             
             // Check if user has purchased this course
             const myCoursesResponse = await fetch('/api/courses/my-courses', {
@@ -227,21 +227,12 @@
               <span>📚</span>
               <span>Mulai Belajar</span>
             </button>
-            <button 
-              onclick="downloadCertificate()"
-              class="px-8 py-4 bg-green-600 text-white rounded-xl font-semibold text-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-              id="certificate-btn"
-              style="display: none;"
-            >
-              <span>🏆</span>
-              <span>Unduh Sertifikat</span>
-            </button>
           `;
           
           // Check if user has completed all modules
           checkCourseCompletion();
         } else {
-          const canAfford = userBalance >= currentCourse.price;
+          const canAfford = userBalance >= Number(currentCourse.price);
           actionsContainer.innerHTML = `
             <button 
               onclick="openPurchaseModal()"
@@ -305,11 +296,6 @@
 
       function goToModules() {
         window.location.href = `/courses/${currentCourse.id}/modules`;
-      }
-
-      function downloadCertificate() {
-        // Implementation for certificate download
-        console.log('Download certificate for course:', currentCourse.id);
       }
 
       function goBack() {

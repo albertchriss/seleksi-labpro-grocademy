@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -9,25 +10,40 @@ import { User } from 'src/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponseDto } from './dto/login.dto';
 import { RegisterDto, RegisterResponseDto } from './dto/register.dto';
+import { AuthenticatedRequest } from './interfaces/auth.interface';
+import { Role } from 'src/entities/account.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersServie: UsersService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(identifier: string, pass: string): Promise<User | null> {
+  async validateUser(
+    identifier: string,
+    pass: string,
+    requestOrigin: string,
+  ): Promise<User | null> {
     const [account, user] = await Promise.all([
-      this.usersServie.findAccountByIdentifier(identifier),
-      this.usersServie.findUserByIdentifier(identifier),
+      this.usersService.findAccountByIdentifier(identifier),
+      this.usersService.findUserByIdentifier(identifier),
     ]);
 
     if (!account || !user) {
       return null;
     }
 
+    if (!account.password) {
+      return null;
+    }
+
     if (!(await bcrypt.compare(pass, account.password))) {
+      return null;
+    }
+
+    const adminFeUrl = 'https://labpro-ohl-2025-fe.hmif.dev';
+    if (account.role === Role.USER && requestOrigin === adminFeUrl) {
       return null;
     }
 
@@ -56,19 +72,19 @@ export class AuthService {
       throw new BadRequestException('Passwords do not match');
     }
 
-    const existingEmail = await this.usersServie.findUserByEmail(email);
+    const existingEmail = await this.usersService.findUserByEmail(email);
     if (existingEmail) {
       throw new ConflictException('Email already in use');
     }
 
     const existingUsername =
-      await this.usersServie.findUserByUsername(username);
+      await this.usersService.findUserByUsername(username);
     if (existingUsername) {
       throw new ConflictException('Username already in use');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.usersServie.create(
+    const user = await this.usersService.create(
       {
         username,
         email,
@@ -87,5 +103,47 @@ export class AuthService {
       first_name: user.first_name,
       last_name: user.last_name,
     };
+  }
+
+  // New Google Login Method
+  async googleLogin(req: AuthenticatedRequest): Promise<LoginResponseDto> {
+    if (!req.user) {
+      throw new BadRequestException('No user from google');
+    }
+
+    const { email, first_name, last_name, profile_pic } = req.user;
+
+    try {
+      let user = await this.usersService.findUserByEmail(email);
+
+      if (!user) {
+        // If user doesn't exist, create a new one
+        const username = email.split('@')[0]; // Or generate a unique username
+        user = await this.usersService.create(
+          {
+            email,
+            first_name,
+            last_name,
+            profile_pic,
+            // profile_pic: picture,
+          },
+          {
+            email,
+            username,
+          },
+        );
+      }
+
+      // Login the user and return the JWT token
+      return this.login(user);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new InternalServerErrorException(
+          'Failed to process Google login',
+          error.message,
+        );
+      }
+      throw new InternalServerErrorException('Failed to process Google login');
+    }
   }
 }

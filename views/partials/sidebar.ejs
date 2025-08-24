@@ -1,6 +1,6 @@
-<!-- Sidebar -->
-<div class="w-64 gradient-primary text-white flex flex-col">
-  <!-- Logo/Header -->
+<div
+  class="w-64 gradient-primary text-white flex flex-col h-screen sticky top-0"
+>
   <div class="p-6 border-b border-blue-600">
     <div class="flex items-center gap-2">
       <div
@@ -15,7 +15,6 @@
     </div>
   </div>
 
-  <!-- Navigation -->
   <div class="flex-1 py-6">
     <div class="px-4 mb-4">
       <p class="text-blue-200 text-sm font-medium uppercase tracking-wider">
@@ -41,7 +40,23 @@
     </nav>
   </div>
 
-  <!-- Logout -->
+  <div class="p-4 border-t border-blue-600">
+    <div class="flex items-center gap-3">
+      <img
+        id="profile-picture"
+        class="w-10 h-10 rounded-full bg-blue-500 object-cover bg-white"
+        src="/images/default-profile.svg"
+        alt="Profile Picture"
+      />
+      <div class="flex-1 min-w-0">
+        <p id="profile-name" class="font-semibold text-sm text-white truncate">
+          Loading...
+        </p>
+        <p id="profile-email" class="text-xs text-blue-200 truncate">...</p>
+      </div>
+    </div>
+  </div>
+
   <div class="p-4 border-t border-blue-600">
     <button
       onclick="logout()"
@@ -52,3 +67,66 @@
     </button>
   </div>
 </div>
+
+<script>
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
+  (async function validateAndLoadUser() {
+    const token = localStorage.getItem('token');
+
+    // Select profile elements
+    const profilePicEl = document.getElementById('profile-picture');
+    const profileNameEl = document.getElementById('profile-name');
+    const profileEmailEl = document.getElementById('profile-email');
+
+    // Default SVG avatar (a simple user icon)
+    const defaultAvatar = '/images/default-profile.svg';
+
+    if (!token) {
+      logout();
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/self', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+
+        const fullName =
+          `${user.data.first_name || ''} ${user.data.last_name || ''}`.trim();
+        const fullEmail = user.data.email || 'No email';
+
+        // Set the visible text
+        profileNameEl.textContent = fullName;
+        profileEmailEl.textContent = fullEmail;
+
+        // Set the title attribute to create a hover tooltip
+        profileNameEl.title = fullName;
+        profileEmailEl.title = fullEmail;
+        profilePicEl.src = user.data.profile_pic || defaultAvatar;
+        if (user.data.profile_pic) {
+          profilePicEl.classList.remove('p-1');
+        } else {
+          profilePicEl.classList.add('p-1');
+        }
+      } else if (response.status === 401) {
+        console.error('Session token is invalid or expired.');
+        logout();
+      } else {
+        // Handle other server errors (e.g., 500)
+        profileNameEl.textContent = 'Error loading user';
+      }
+    } catch (error) {
+      console.error('Error validating session:', error);
+      profileNameEl.textContent = 'Connection Error';
+    }
+  })();
+</script>
