@@ -1,98 +1,135 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Grocademy
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+  * **Nama:** Albertus Christian Poandy
+  * **NIM:** 13523077
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+-----
 
-## Description
+## Cara Menjalankan Aplikasi
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Kunjungi [https://labpro.cpoandy.me](https://labpro.cpoandy.me)
 
-## Project setup
+### Cara menjalankan secara lokal
 
-```bash
-$ npm install
-```
+Pastikan Anda telah menginstal Docker di mesin Anda.
 
-## Compile and run the project
+1.  **Clone repositori:**
 
-```bash
-# development
-$ npm run start
+    ```bash
+    git clone https://github.com/albertchriss/seleksi-labpro-grocademy.git
+    cd seleksi-labpro-grocademy
+    ```
 
-# watch mode
-$ npm run start:dev
+2.  Buat file `.env` dari contoh yang ada dan isi variabel yang diperlukan.
 
-# production mode
-$ npm run start:prod
-```
+3.  **Jalankan dengan Docker Compose:**
 
-## Run tests
+    ```bash
+    docker-compose up -d
+    ```
 
-```bash
-# unit tests
-$ npm run test
+4.  **Akses aplikasi:** Buka peramban dan navigasi ke `http://localhost:3000`.
 
-# e2e tests
-$ npm run test:e2e
+-----
 
-# test coverage
-$ npm run test:cov
-```
+## *Technology Stack*
 
-## Deployment
+  * **Backend:**
+      * NestJS
+      * TypeScript
+      * PostgreSQL
+      * TypeORM
+      * Passport.js (untuk otentikasi)
+  * **Frontend:**
+      * EJS (Embedded JavaScript templates)
+      * Tailwind CSS
+  * **Lainnya:**
+      * Docker
+      * MinIO (untuk penyimpanan objek)
+      * Puppeteer (untuk pembuatan PDF)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+-----
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## *Endpoint* API
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+Berikut adalah daftar *endpoint* API utama yang telah dibuat:
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+  * **Autentikasi**
+      * `POST /api/auth/login`
+      * `POST /api/auth/register`
+      * `GET /api/auth/self`
+      * `GET /api/auth/google`
+      * `GET /api/auth/google/callback`
+  * **Kursus**
+      * `GET /api/courses`
+      * `POST /api/courses`
+      * `GET /api/courses/my-courses`
+      * `GET /api/courses/subscribe`
+      * `GET /api/courses/:id`
+      * `PUT /api/courses/:id`
+      * `DELETE /api/courses/:id`
+      * `POST /api/courses/:id/buy`
+      * `GET /api/courses/:id/certificate`
+      * `POST /api/courses/:courseId/modules`
+      * `GET /api/courses/:courseId/modules`
+      * `PATCH /api/courses/:courseId/modules/reorder`
+  * **Modul**
+      * `GET /api/modules/:id`
+      * `PUT /api/modules/:id`
+      * `DELETE /api/modules/:id`
+      * `PATCH /api/modules/:id/complete`
+  * **Pengguna**
+      * `GET /api/users`
+      * `GET /api/users/:id`
+      * `POST /api/users/:id/balance`
+      * `PUT /api/users/:id`
+      * `DELETE /api/users/:id`
+  * **Media**
+      * `GET /api/media/:id/view`
 
-## Resources
+-----
 
-Check out a few resources that may come in handy when working with NestJS:
+## Bonus yang Dikerjakan
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+  * **B02 - Deployment:** [https://labpro.cpoandy.me](https://labpro.cpoandy.me).
+  * **B03 - Polling:** Menerapkan *long polling* pada halaman courses untuk pembaruan real time
+  * **B05 - Lighthouse:** Peningkatan performa, aksesibilitas, SEO, dan Best Practices dengan rata-rata skor minimal 95.
+    - Page Login
+      
+      <img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/0804739d-f122-411a-9ea2-ee5e6508198b" />
 
-## Support
+    - Page Courses
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+      <img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/36c9bfc6-cc34-46c8-b341-274ff6e9b29d" />
 
-## Stay in touch
+    - Page My Courses
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+      <img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/7a6cda8e-7999-4f5c-8f5a-26e5df357746" />
 
-## License
+    - Page Course Detail
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+      <img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/2974a812-6e31-4893-997e-bbab768a9773" />
+
+    - Page Modules
+
+      <img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/67503374-4b76-4b2b-852a-a2c4beeef9df" />
+
+  * **B07 - Dokumentasi API:** Dokumentasi API dibuat menggunakan Swagger: [https://labpro.cpoandy.me/docs](https://labpro.cpoandy.me/docs) (tidak dimatikan di production untuk keperluan testing asisten)
+  * **B10 - Fitur Tambahan:** Menambahkan fungsionalitas autentikasi melalui Google (OAuth).
+  * **B11 - Bucket:** Menggunakan MinIO untuk penyimpanan objek *file* media.
+
+-----
+
+## Cuplikan Aplikasi
+
+*Halaman Login*
+
+*Halaman Pendaftaran*
+
+*Halaman Daftar Kursus*
+
+*Halaman Detail Kursus*
+
+*Halaman Modul Kursus*
+
+*Halaman Kursus Saya*
