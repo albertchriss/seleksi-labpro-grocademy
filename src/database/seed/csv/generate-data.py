@@ -59,7 +59,7 @@ admin_acc = {
     'userId': admin_user['id'],
     'email': admin_user['email'],
     'username': admin_user['username'],
-    'password': 'password',
+    'password': 'password123',
     'role': 'admin'
 }
 
